@@ -2,7 +2,7 @@
 name = "typer-concierge-web"
 version = "0.1.0"
 authors = ["Kotaro7750 <7750koutarou@gmail.com>"]
-edition = "2018"
+edition = "2021"
 
 [lib]
 path = "wasm-src/lib.rs"
@@ -12,7 +12,7 @@ crate-type = ["cdylib", "rlib"]
 default = ["console_error_panic_hook"]
 
 [dependencies]
-wasm-bindgen = "0.2.84"
+wasm-bindgen = { version = "0.2.84", features = ["serde-serialize"] }
 
 # The `console_error_panic_hook` crate provides better debugging of panics by
 # logging them with `console.error`. This is great for development, but requires
@@ -22,6 +22,11 @@ console_error_panic_hook = { version = "0.1.7", optional = true }
 web-sys = { version = "0.3.77", features = [ "console" ] }
 typing_engine = "0.3"
 getrandom = { version = "0.2", features = ["js"] }
+wasm-bindgen-futures = "0.4.50"
+futures = "0.3.31"
+serde = { version = "1.0.219", features = ["derive"] }
+serde-wasm-bindgen = "0.6.5"
+tsify = "0.5.5"
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3.34"

@@ -1,20 +1,7 @@
 import { useEffect, useReducer } from 'react';
+import { get_dictionary_catalog } from '../pkg/typer_concierge_web';
 
 export function useLibrary(): [Library, (action: LibraryOperatorActionType) => void] {
-
-  // tauri側から取得する辞書情報
-  type DictionaryInfoFromCore = {
-    dictionary_type: DictionaryType,
-    origin: DictionaryOrigin,
-    invalid_line_numbers: number[],
-    name: string,
-    valid_vocabulary_count: number,
-  };
-
-  type CategorizedDictionaryInfosFromCore = {
-    word: DictionaryInfoFromCore[],
-    sentence: DictionaryInfoFromCore[],
-  }
 
   type QueryRequestToCore = {
     dictionaryType: DictionaryType,
@@ -144,35 +131,34 @@ export function useLibrary(): [Library, (action: LibraryOperatorActionType) => v
   }
 
   const loadAvailableDictionaryList = () => {
-    // XXX
-    // invoke<CategorizedDictionaryInfosFromCore>('get_dictionary_infos').then((categorizedDictionaryInfos: CategorizedDictionaryInfosFromCore) => {
-    //   let availableDictionaryList: CategorizedDictionaryInfoList = {
-    //     word: [],
-    //     sentence: [],
-    //   };
-    //
-    //   categorizedDictionaryInfos.word.forEach(wordDictionary => {
-    //     availableDictionaryList.word.push({
-    //       name: wordDictionary.name,
-    //       origin: wordDictionary.origin,
-    //       type: 'word',
-    //       validVocabularyCount: wordDictionary.valid_vocabulary_count,
-    //       invalidLineNumberList: wordDictionary.invalid_line_numbers,
-    //     });
-    //   });
-    //
-    //   categorizedDictionaryInfos.sentence.forEach(sentenceDictionary => {
-    //     availableDictionaryList.sentence.push({
-    //       name: sentenceDictionary.name,
-    //       type: 'sentence',
-    //       origin: sentenceDictionary.origin,
-    //       validVocabularyCount: sentenceDictionary.valid_vocabulary_count,
-    //       invalidLineNumberList: sentenceDictionary.invalid_line_numbers,
-    //     });
-    //   });
-    //
-    //   dispatchLibrary({ type: 'load', availableDictionaryList: availableDictionaryList });
-    // });
+    const catalog = get_dictionary_catalog();
+
+    let availableDictionaryList: CategorizedDictionaryInfoList = {
+      word: [],
+      sentence: [],
+    };
+
+    catalog.word.forEach(wordDictionary => {
+      availableDictionaryList.word.push({
+        name: wordDictionary.name,
+        origin: wordDictionary.origin,
+        type: 'word',
+        validVocabularyCount: wordDictionary.valid_vocabulary_count,
+        invalidLineNumberList: wordDictionary.invalid_line_numbers,
+      });
+    });
+
+    catalog.sentence.forEach(sentenceDictionary => {
+      availableDictionaryList.sentence.push({
+        name: sentenceDictionary.name,
+        type: 'sentence',
+        origin: sentenceDictionary.origin,
+        validVocabularyCount: sentenceDictionary.valid_vocabulary_count,
+        invalidLineNumberList: sentenceDictionary.invalid_line_numbers,
+      });
+    });
+
+    dispatchLibrary({ type: 'load', availableDictionaryList: availableDictionaryList });
   };
 
   const confirmQuery = () => {
