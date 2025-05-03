@@ -21,7 +21,6 @@ type Library = {
   readonly usedDictionaries: [DictionaryOrigin, string][],
   readonly availableDictionaries: DictionaryInfo[],
   readonly usedDictionaryType: DictionaryType,
-  readonly keyStrokeCountThreshold: number,
 }
 
 type LibraryOperatorActionType =
@@ -29,8 +28,7 @@ type LibraryOperatorActionType =
   | { type: 'disuse', dictionaryName: string, dictionaryOrigin: DictionaryOrigin }
   | { type: 'load' }
   | { type: 'type', dictionaryType: DictionaryType }
-  | { type: 'keyStrokeCountThreshold', keyStrokeCountThreshold: number }
-  | { type: 'confirmQuery' };
+  | { type: 'confirmQuery', keyStrokeCountThreshold: number };
 
 
 type ViewDisplayInfo = {

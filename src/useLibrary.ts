@@ -14,7 +14,6 @@ export function useLibrary(): [Library, (action: LibraryOperatorActionType) => v
     | { type: 'disuse', dictionaryName: string, dictionaryOrigin: DictionaryOrigin }
     | { type: 'load', availableDictionaryList: CategorizedDictionaryInfoList }
     | { type: 'type', dictionaryType: DictionaryType }
-    | { type: 'keyStrokeCountThreshold', keyStrokeCountThreshold: number };
 
   type CategorizedDictionaryInfoList = {
     word: DictionaryInfo[],
@@ -29,7 +28,6 @@ export function useLibrary(): [Library, (action: LibraryOperatorActionType) => v
       sentence: [DictionaryOrigin, string][],
     },
     usedDictionaryType: DictionaryType,
-    keyStrokeCountThreshold: number,
   }
 
   const existInAvailableDictionary = (availableDictionaryList: CategorizedDictionaryInfoList, dictionaryName: string, vocabularyType: DictionaryType, dictionaryOrigin: DictionaryOrigin) => {
@@ -70,7 +68,6 @@ export function useLibrary(): [Library, (action: LibraryOperatorActionType) => v
           availableDictionaries: state.availableDictionaries,
           usedDictionaries: addedUsedDictionaries,
           usedDictionaryType: state.usedDictionaryType,
-          keyStrokeCountThreshold: state.keyStrokeCountThreshold,
         };
 
       // 現在有効になっている辞書タイプで利用可能な辞書を不使用とする
@@ -92,7 +89,6 @@ export function useLibrary(): [Library, (action: LibraryOperatorActionType) => v
           availableDictionaries: state.availableDictionaries,
           usedDictionaries: deletedUsedDictionaryFileNameList,
           usedDictionaryType: state.usedDictionaryType,
-          keyStrokeCountThreshold: state.keyStrokeCountThreshold,
         };
 
       case 'load':
@@ -107,7 +103,6 @@ export function useLibrary(): [Library, (action: LibraryOperatorActionType) => v
             sentence: state.usedDictionaries.sentence.filter(e => sentenceAvailableDictionaryNameList.includes(e)),
           },
           usedDictionaryType: state.usedDictionaryType,
-          keyStrokeCountThreshold: state.keyStrokeCountThreshold,
         };
 
       // 使用する辞書タイプを変更する
@@ -116,16 +111,6 @@ export function useLibrary(): [Library, (action: LibraryOperatorActionType) => v
           availableDictionaries: state.availableDictionaries,
           usedDictionaries: state.usedDictionaries,
           usedDictionaryType: action.dictionaryType,
-          keyStrokeCountThreshold: state.keyStrokeCountThreshold,
-        };
-
-      // 
-      case 'keyStrokeCountThreshold':
-        return {
-          availableDictionaries: state.availableDictionaries,
-          usedDictionaries: state.usedDictionaries,
-          usedDictionaryType: state.usedDictionaryType,
-          keyStrokeCountThreshold: action.keyStrokeCountThreshold,
         };
     }
   }
@@ -161,11 +146,11 @@ export function useLibrary(): [Library, (action: LibraryOperatorActionType) => v
     dispatchLibrary({ type: 'load', availableDictionaryList: availableDictionaryList });
   };
 
-  const confirmQuery = () => {
+  const confirmQuery = (keyStrokeCountThreshold: number) => {
     let request: QueryRequestToCore = { dictionaryType: effectiveVocabularyType, usedDictionaries: effectiveUsedDictionaries };
 
     if (effectiveVocabularyType == 'word') {
-      request.keyStrokeCountThreshold = innerLibrary.keyStrokeCountThreshold;
+      request.keyStrokeCountThreshold = keyStrokeCountThreshold;
     }
 
     // XXX
@@ -187,11 +172,8 @@ export function useLibrary(): [Library, (action: LibraryOperatorActionType) => v
       case 'type':
         dispatchLibrary({ type: 'type', dictionaryType: action.dictionaryType });
         break;
-      case 'keyStrokeCountThreshold':
-        dispatchLibrary({ type: 'keyStrokeCountThreshold', keyStrokeCountThreshold: action.keyStrokeCountThreshold });
-        break;
       case 'confirmQuery':
-        confirmQuery();
+        confirmQuery(action.keyStrokeCountThreshold);
         break;
     }
   }
@@ -205,7 +187,6 @@ export function useLibrary(): [Library, (action: LibraryOperatorActionType) => v
     availableDictionaries: { word: [], sentence: [] },
     usedDictionaries: { word: [], sentence: [] },
     usedDictionaryType: 'word',
-    keyStrokeCountThreshold: 150,
   });
 
   // 返却する型は現在有効な辞書タイプの情報のみを持つ
@@ -217,7 +198,6 @@ export function useLibrary(): [Library, (action: LibraryOperatorActionType) => v
     usedDictionaries: effectiveUsedDictionaries,
     availableDictionaries: effectiveAvailableDictionaries,
     usedDictionaryType: effectiveVocabularyType,
-    keyStrokeCountThreshold: innerLibrary.keyStrokeCountThreshold,
   };
 
   return [library, operator];
