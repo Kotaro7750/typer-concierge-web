@@ -1,3 +1,5 @@
+import { CharacterStyleInformation, CharacterStyleInformationForCanvas } from "./@types/type";
+
 // TyperConciergeフォントでは非ASCII文字でもASCII文字と同じ幅になることがある
 export function isMonoWidthFont(c: string) {
   if (/^[\x20-\x7E]*$/.test(c)) {

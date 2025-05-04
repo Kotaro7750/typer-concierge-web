@@ -1,4 +1,5 @@
 import _ from 'react';
+import { ViewDisplayInfo } from './@types/type';
 import { ResponsiveCanvas } from './ResponsiveCanvas';
 import { constructCharacterStyleInformation, constructCanvasLine, calcLineWindowIndex } from './utility';
 

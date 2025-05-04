@@ -1,6 +1,8 @@
 import React from 'react';
+import { LibraryOperator } from './@types/type';
+import { DictionaryInfo, DictionaryOrigin } from '../pkg/typer_concierge_web';
 
-export function SelectDictionaryPane(props: { availableDictionaryList: DictionaryInfo[], usedDictionaryList: [DictionaryOrigin, string][], libraryOperator: (action: LibraryOperatorActionType) => void }): JSX.Element {
+export function SelectDictionaryPane(props: { availableDictionaryList: DictionaryInfo[], usedDictionaryList: [DictionaryOrigin, string][], libraryOperator: LibraryOperator }): JSX.Element {
   const usedDictionaryOneHot = new Map<string, boolean>(props.usedDictionaryList.map(e => [`${e[0]} ${e[1]}`, true]));
 
   const elem: JSX.Element[] = [];
@@ -8,9 +10,9 @@ export function SelectDictionaryPane(props: { availableDictionaryList: Dictionar
   // 辞書リストのそれぞれの辞書をトグルしたときのハンドラ
   function onChange(e: React.ChangeEvent<HTMLInputElement>, dictionaryName: string, dictionaryOrigin: DictionaryOrigin) {
     if (e.target.checked) {
-      props.libraryOperator({ type: 'use', dictionaryName: dictionaryName, dictionaryOrigin: dictionaryOrigin });
+      props.libraryOperator.use(dictionaryName, dictionaryOrigin);
     } else {
-      props.libraryOperator({ type: 'disuse', dictionaryName: dictionaryName, dictionaryOrigin: dictionaryOrigin });
+      props.libraryOperator.disuse(dictionaryName, dictionaryOrigin);
     }
   }
 
@@ -40,7 +42,7 @@ export function SelectDictionaryPane(props: { availableDictionaryList: Dictionar
 
     // 辞書に無効な語彙を含むときの警告文の生成
     let containErrorTooltipText = DICTIONARY_CONTAIN_ERROR_TOOLTIP_TEXT_BASE;
-    dictionaryInfo.invalidLineNumberList.forEach(lineNum => {
+    dictionaryInfo.invalidLineNumbers.forEach(lineNum => {
       containErrorTooltipText = containErrorTooltipText.concat(`\r\n${lineNum}行目`);
     });
 
@@ -51,7 +53,7 @@ export function SelectDictionaryPane(props: { availableDictionaryList: Dictionar
         <span className={`text-start ${!enable && 'text-secondary'}`}>{dictionaryName}</span>
 
         <span className='ms-auto'>
-          {dictionaryInfo.invalidLineNumberList.length != 0 ? <i className='bi bi-exclamation-triangle text-warning' data-bs-toggle='tooltip' data-bs-placement='top' title={containErrorTooltipText} /> : undefined}
+          {dictionaryInfo.invalidLineNumbers.length != 0 ? <i className='bi bi-exclamation-triangle text-warning' data-bs-toggle='tooltip' data-bs-placement='top' title={containErrorTooltipText} /> : undefined}
           {!enable ? <i className='bi bi-x-circle text-danger' data-bs-toggle='tooltip' data-bs-placement='top' title={DISABLED_DICTIONARY_TOOLTIP_TEXT} /> : undefined}
         </span>
       </label>

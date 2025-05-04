@@ -1,4 +1,5 @@
 import _ from 'react';
+import { KeyStrokeDisplayInfo, CharacterStyleInformation, CharacterStyleInformationForCanvas } from './@types/type';
 
 import { ResponsiveCanvas } from './ResponsiveCanvas';
 

@@ -1,4 +1,5 @@
 import _, { useState } from 'react';
+import { TypingResultStatistics } from './@types/type';
 
 function SubContent(props: { title: string, content: string }): JSX.Element {
   return (

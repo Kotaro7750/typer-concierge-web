@@ -1,11 +1,12 @@
 import _, { useState } from 'react';
+import { DisplayInfo } from './@types/type';
 
 export function useTypingEngine(onFinished: () => void): [DisplayInfo | null, () => void, (arg0: string, arg1: number) => void] {
   const [displayInfo, setDisplayInfo] = useState<DisplayInfo | null>(null);
 
 
   const startGame = () => {
-    invoke<DisplayInfo>('start_game').then(returned => setDisplayInfo(returned));
+    // invoke<DisplayInfo>('start_game').then(returned => setDisplayInfo(returned));
   }
 
   const onInput = (c: string, elapsedTime: number) => {

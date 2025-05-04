@@ -1,4 +1,5 @@
 import _, { useEffect, useContext, useState } from 'react';
+import { TypingResultStatistics } from './@types/type';
 //import { ResultSummaryPane } from './ResultSummaryPane';
 
 import { GameStateContext } from './App';

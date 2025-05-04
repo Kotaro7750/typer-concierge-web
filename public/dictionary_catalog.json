@@ -1,0 +1,18 @@
+{
+  "word": {
+    "辞書1": {
+      "path": "dictionary1.tconciergew"
+    },
+    "辞書2": {
+      "path": "dictionary2.tconciergew"
+    }
+  },
+  "sentence": {
+    "辞書1": {
+      "path": "dictionary1.tconcierges"
+    },
+    "辞書2": {
+      "path": "dictionary2.tconcierges"
+    }
+  }
+}

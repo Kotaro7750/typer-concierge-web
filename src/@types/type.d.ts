@@ -1,44 +1,36 @@
-type GameState = 'ModeSelect' | 'TransitionToTyping' | 'Typing' | 'Finished';
+import { DictionaryType, DictionaryOrigin, DictionaryInfo } from '../../pkg/typer_concierge_web';
 
-interface GameStateContext {
+export type GameState = 'ModeSelect' | 'TransitionToTyping' | 'Typing' | 'Finished';
+
+export interface GameStateContext {
   gameState: GameState,
   setGameState: React.Dispatch<React.SetStateAction<GameState>>,
 }
 
-type DictionaryType = 'word' | 'sentence';
-
-type DictionaryOrigin = 'user_defined' | 'builtin';
-
-type DictionaryInfo = {
-  name: string,
-  type: DictionaryType,
-  origin: DictionaryOrigin,
-  invalidLineNumberList: number[],
-  validVocabularyCount: number,
-}
-
-type Library = {
+export type Library = {
   readonly usedDictionaries: [DictionaryOrigin, string][],
-  readonly availableDictionaries: DictionaryInfo[],
+  readonly catalog: DictionaryInfo[],
   readonly usedDictionaryType: DictionaryType,
+  readonly isAvailableDictionariesLoading: boolean,
 }
 
-type LibraryOperatorActionType =
-  { type: 'use', dictionaryName: string, dictionaryOrigin: DictionaryOrigin }
-  | { type: 'disuse', dictionaryName: string, dictionaryOrigin: DictionaryOrigin }
-  | { type: 'load' }
-  | { type: 'type', dictionaryType: DictionaryType }
-  | { type: 'confirmQuery', keyStrokeCountThreshold: number };
+export type LibraryOperator = {
+  use: (dictionaryName: string, dictionaryOrigin: DictionaryOrigin) => void,
+  disuse: (dictionaryName: string, dictionaryOrigin: DictionaryOrigin) => void,
+  load: () => void,
+  setType: (dictionaryType: DictionaryType) => void,
+  confirmQuery: (keyStrokeCountThreshold: number) => void,
+}
 
 
-type ViewDisplayInfo = {
+export type ViewDisplayInfo = {
   readonly view: string,
   readonly currentCursorPositions: number[],
   readonly missedPositions: number[],
   readonly lastPosition: number,
 }
 
-type KeyStrokeDisplayInfo = {
+export type KeyStrokeDisplayInfo = {
   readonly keyStroke: string,
   readonly currentCursorPosition: number,
   readonly missedPositions: number[],
@@ -47,31 +39,31 @@ type KeyStrokeDisplayInfo = {
   readonly lapEndTime: number[],
 }
 
-type DisplayInfo = {
+export type DisplayInfo = {
   readonly view: ViewDisplayInfo,
   readonly keyStroke: KeyStrokeDisplayInfo,
 }
 
-type CharacterStyleInformation = {
+export type CharacterStyleInformation = {
   c: string,
   isWrong: boolean,
   cursorRelative: 'before' | 'onCursor' | 'after',
   isOutRange: boolean,
 }
 
-type CharacterStyleInformationForCanvas = CharacterStyleInformation & {
+export type CharacterStyleInformationForCanvas = CharacterStyleInformation & {
   x: number,
   explicitSpace: boolean
 }
 
 
-type TypingResultStatistics = {
+export type TypingResultStatistics = {
   keyStroke: TypingResultStatisticsTarget,
   idealKeyStroke: TypingResultStatisticsTarget,
   totalTimeMs: number,
 }
 
-type TypingResultStatisticsTarget = {
+export type TypingResultStatisticsTarget = {
   wholeCount: number,
   completelyCorrectCount: number,
   missedCount: number,

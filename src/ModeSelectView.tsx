@@ -11,7 +11,7 @@ export function ModeSelectView() {
   const gameStateContext = useContext(GameStateContext);
 
   // NOTE: 分割代入を使っていこう cf. <https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment>
-  const { library: { usedDictionaryType, usedDictionaries: usedDictionaries, availableDictionaries }, libraryOperator } = useContext(LibraryContext);
+  const { library: { usedDictionaryType, usedDictionaries: usedDictionaries, catalog: availableDictionaries, isAvailableDictionariesLoading }, libraryOperator } = useContext(LibraryContext);
 
   const [keyStrokeCountThreshold, setKeyStrokeCountThreshold] = useState(150);
 
@@ -24,7 +24,7 @@ export function ModeSelectView() {
       return;
     }
 
-    libraryOperator({ type: 'confirmQuery', keyStrokeCountThreshold: keyStrokeCountThreshold });
+    libraryOperator.confirmQuery(keyStrokeCountThreshold);
     gameStateContext.setGameState('TransitionToTyping');
   }
 
@@ -56,23 +56,31 @@ export function ModeSelectView() {
             <div className='p-0 d-flex bg-white'>
               <div className='btn-group'>
                 <label className={`btn ${usedDictionaryType == 'word' ? 'btn-secondary' : 'btn-outline-secondary'} text-dark border border-secondary border-2`} data-bs-toggle='tooltip' data-bs-placement='top' title={WORD_TOOLTIP_TEXT}>
-                  単語<input type='radio' className='btn-check' onClick={() => libraryOperator({ type: 'type', dictionaryType: 'word' })} />
+                  単語<input type='radio' className='btn-check' disabled={isAvailableDictionariesLoading} onClick={() => libraryOperator.setType('word')} />
                 </label>
 
                 <label className={`btn ${usedDictionaryType == 'sentence' ? 'btn-secondary' : 'btn-outline-secondary'} text-dark border border-secondary border-2 border-start-0`} data-bs-toggle='tooltip' data-bs-placement='top' title={SENTENCE_TOOLTIP_TEXT}>
-                  文章<input type='radio' className='btn-check' onClick={() => libraryOperator({ type: 'type', dictionaryType: 'sentence' })} />
+                  文章<input type='radio' className='btn-check' disabled={isAvailableDictionariesLoading} onClick={() => libraryOperator.setType('sentence')} />
                 </label>
               </div>
             </div>
 
             <div className='p-0 pt-2 d-flex justify-content-end ms-auto'>
-              <button className='btn btn-sm btn-outline-success' onClick={() => { libraryOperator({ type: 'load' }); }}><i className='bi bi-arrow-clockwise'></i></button>
+              <button className='btn btn-sm btn-outline-success' disabled={isAvailableDictionariesLoading} onClick={() => { libraryOperator.load(); }}><i className='bi bi-arrow-clockwise'></i></button>
             </div>
           </div>
         </div>
 
         <div className='h-25 row p-2 border border-secondary rounded-3 border-2 bg-white'>
-          <SelectDictionaryPane availableDictionaryList={availableDictionaries} usedDictionaryList={usedDictionaries} libraryOperator={libraryOperator} />
+          {isAvailableDictionariesLoading ?
+            <div className='h-100 w-100 d-flex justify-content-center align-items-center'>
+              <div className="spinner-border" role='status'>
+                <span className='visually-hidden'>Loading</span>
+              </div>
+            </div>
+            :
+            <SelectDictionaryPane availableDictionaryList={availableDictionaries} usedDictionaryList={usedDictionaries} libraryOperator={libraryOperator} />
+          }
         </div>
 
         {
@@ -92,7 +100,7 @@ export function ModeSelectView() {
 
         <div className='row d-flex justify-content-center mt-3'>
           <div className='col-6 d-flex justify-content-center'>
-            <button onClick={confirmReady} className='btn btn-lg btn-primary' disabled={!canStart()}>Start</button>
+            <button onClick={confirmReady} className='btn btn-lg btn-primary' disabled={!canStart() || isAvailableDictionariesLoading}>Start</button>
           </div>
         </div>
       </div>

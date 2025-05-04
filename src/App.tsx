@@ -1,4 +1,5 @@
 import _, { useState, createContext } from 'react';
+import { GameState, Library, LibraryOperator } from './@types/type';
 import { useLibrary } from './useLibrary';
 import { ModeSelectView } from './ModeSelectView';
 import { TransitionToTypingView } from './TransitionToTypingView';
@@ -6,7 +7,7 @@ import { TypingView } from './TypingView';
 import { ResultView } from './ResultView';
 
 export const GameStateContext = createContext<GameStateContext>({} as GameStateContext);
-export const LibraryContext = createContext<{ library: Library, libraryOperator: (_: LibraryOperatorActionType) => void }>({} as { library: Library, libraryOperator: (_: LibraryOperatorActionType) => void });
+export const LibraryContext = createContext<{ library: Library, libraryOperator: LibraryOperator }>({} as { library: Library, libraryOperator: LibraryOperator });
 
 export function App() {
   const [gameState, setGameState] = useState<GameState>('ModeSelect');
