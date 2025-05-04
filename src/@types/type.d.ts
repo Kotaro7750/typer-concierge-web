@@ -2,7 +2,7 @@ import { DictionaryType, DictionaryOrigin, DictionaryInfo } from '../../pkg/type
 
 export type GameState = 'ModeSelect' | 'TransitionToTyping' | 'Typing' | 'Finished';
 
-export interface GameStateContext {
+export interface GameStateContextType {
   gameState: GameState,
   setGameState: React.Dispatch<React.SetStateAction<GameState>>,
 }

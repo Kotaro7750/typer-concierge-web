@@ -2,7 +2,7 @@ import { useEffect, useReducer, useState, useActionState, startTransition } from
 import { Library, LibraryOperator } from './@types/type';
 import { get_dictionary_catalog, DictionaryType, DictionaryOrigin, DictionaryCatalog } from '../pkg/typer_concierge_web';
 
-export function useLibrary(): [Library, LibraryOperator] {
+export function useLibrary(errorHandler: (e: Error) => void): [Library, LibraryOperator] {
 
   type QueryRequestToCore = {
     dictionaryType: DictionaryType,
@@ -82,15 +82,6 @@ export function useLibrary(): [Library, LibraryOperator] {
     }
   }
 
-  const loadCatalog = async (_: DictionaryCatalog) => {
-    const catalog = await get_dictionary_catalog();
-
-    // XXX
-    // Exclusion from used dictionary list is needed
-
-    return catalog;
-  };
-
   const confirmQuery = (keyStrokeCountThreshold: number) => {
     let request: QueryRequestToCore = { dictionaryType: usedDictionaryType, usedDictionaries: effectiveUsedDictionaries };
 
@@ -104,10 +95,26 @@ export function useLibrary(): [Library, LibraryOperator] {
 
   const [usedDictionaryType, setUsedDictionaryType] = useState<DictionaryType>('word');
 
-  const [catalog, kickLoadCatalog, isLibraryLoading] = useActionState<DictionaryCatalog>(loadCatalog, {
+  const initialCatalog: DictionaryCatalog = {
     word: [],
     sentence: [],
-  });
+  }
+  const loadCatalog = async (_: DictionaryCatalog) => {
+    let catalog: DictionaryCatalog = initialCatalog;
+
+    try {
+      catalog = await get_dictionary_catalog();
+    } catch (e: any) {
+      errorHandler(e);
+    }
+
+    // XXX
+    // Exclusion from used dictionary list is needed
+
+    return catalog;
+  };
+
+  const [catalog, kickLoadCatalog, isLibraryLoading] = useActionState<DictionaryCatalog>(loadCatalog, initialCatalog);
 
   const operator: LibraryOperator = {
     use: (dictionaryName: string, dictionaryOrigin: DictionaryOrigin) => {
