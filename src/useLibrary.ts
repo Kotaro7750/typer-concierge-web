@@ -1,14 +1,8 @@
 import { useEffect, useReducer, useState, useActionState, startTransition } from 'react';
 import { Library, LibraryOperator } from './@types/type';
-import { get_dictionary_catalog, DictionaryType, DictionaryOrigin, DictionaryCatalog } from '../pkg/typer_concierge_web';
+import { get_dictionary_catalog, DictionaryType, DictionaryOrigin, DictionaryCatalog, confirm_query, QueryRequestFromUI } from '../pkg/typer_concierge_web';
 
 export function useLibrary(errorHandler: (e: Error) => void): [Library, LibraryOperator] {
-
-  type QueryRequestToCore = {
-    dictionaryType: DictionaryType,
-    usedDictionaries: [DictionaryOrigin, String][],
-    keyStrokeCountThreshold?: number,
-  }
 
   type LibraryReducerActionType =
     { type: 'use', dictionaryName: string, dictionaryOrigin: DictionaryOrigin }
@@ -82,15 +76,18 @@ export function useLibrary(errorHandler: (e: Error) => void): [Library, LibraryO
     }
   }
 
-  const confirmQuery = (keyStrokeCountThreshold: number) => {
-    let request: QueryRequestToCore = { dictionaryType: usedDictionaryType, usedDictionaries: effectiveUsedDictionaries };
+  const confirmQuery = async (keyStrokeCountThreshold: number) => {
+    let request: QueryRequestFromUI = {
+      dictionaryType: usedDictionaryType,
+      usedDictionaries: effectiveUsedDictionaries,
+      keyStrokeCountThreshold: null,
+    }
 
     if (usedDictionaryType == 'word') {
       request.keyStrokeCountThreshold = keyStrokeCountThreshold;
     }
 
-    // XXX
-    // invoke('confirm_query', { queryRequestFromUi: request });
+    await confirm_query(request);
   };
 
   const [usedDictionaryType, setUsedDictionaryType] = useState<DictionaryType>('word');

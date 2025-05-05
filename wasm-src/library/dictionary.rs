@@ -8,6 +8,8 @@ use typing_engine::VocabularyEntry;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::JsFuture;
 
+use crate::WasmError;
+
 use super::DictionariesInLibrary;
 
 /// Parses the body of a dictionary file and returns vocabulary entries and invalid line numbers.
@@ -51,7 +53,7 @@ impl DictionaryIndexEntry {
         window: &web_sys::Window,
         name: &str,
         dictionary_type: DictionaryType,
-    ) -> Result<Dictionary, JsValue> {
+    ) -> Result<Dictionary, WasmError> {
         let request_promise = window.fetch_with_str(&self.path);
 
         let response = JsFuture::from(request_promise).await?;
@@ -88,7 +90,7 @@ impl DictionaryIndex {
     pub(crate) async fn construct_dictionaries(
         &self,
         window: &web_sys::Window,
-    ) -> Result<(DictionariesInLibrary, DictionariesInLibrary), JsValue> {
+    ) -> Result<(DictionariesInLibrary, DictionariesInLibrary), WasmError> {
         // Constructing dictionaries is done in parallel
         let futures = self
             .word
@@ -102,13 +104,12 @@ impl DictionaryIndex {
             .collect::<Vec<_>>();
 
         // Wait for all futures to complete
-        let (dictionaries, errors): (
-            Vec<Result<Dictionary, JsValue>>,
-            Vec<Result<Dictionary, JsValue>>,
-        ) = join_all(futures)
-            .await
-            .into_iter()
-            .partition(|result| result.is_ok());
+        type ConstructResult = Result<Dictionary, WasmError>;
+        let (dictionaries, errors): (Vec<ConstructResult>, Vec<ConstructResult>) =
+            join_all(futures)
+                .await
+                .into_iter()
+                .partition(|result| result.is_ok());
         let dictionaries: Vec<_> = dictionaries.into_iter().map(Result::unwrap).collect();
         let errors: Vec<_> = errors.into_iter().map(Result::unwrap_err).collect();
 
@@ -193,6 +194,11 @@ impl Dictionary {
             invalid_line_numbers: self.invalid_line_numbers.clone(),
             valid_vocabulary_count: self.vocabulary_entries.len(),
         }
+    }
+
+    /// Returns the vocabulary entries in the dictionary
+    pub(crate) fn get_vocabulary_entries(&self) -> Vec<&VocabularyEntry> {
+        self.vocabulary_entries.iter().collect()
     }
 }
 
