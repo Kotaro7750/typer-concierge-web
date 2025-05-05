@@ -418,9 +418,9 @@ dependencies = [
 
 [[package]]
 name = "typing_engine"
-version = "0.3.1"
+version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a97caa6959c91a161297cb041b04541f768a176fc84ed2cbfacba7ddc3bb31f4"
+checksum = "fb5d4f92e743d53d5e1a2c1d12375ead34c30eea90e89a57a3013922289efb73"
 dependencies = [
  "once_cell",
  "rand",

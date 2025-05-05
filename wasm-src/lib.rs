@@ -22,10 +22,10 @@ pub fn main() -> Result<(), JsValue> {
 
 #[wasm_bindgen]
 pub async fn get_dictionary_catalog() -> Result<DictionaryCatalog, JsValue> {
-    let catalog = DictionaryCatalog::dummy_catalog();
-
     let window = web_sys::window().ok_or("no global `window` exists")?;
-    LIBRARY.lock().unwrap().load(&window).await?;
+    let mut library = LIBRARY.lock().unwrap();
 
-    Ok(catalog)
+    library.load(&window).await?;
+
+    Ok(library.construct_dictionary_catalog())
 }
