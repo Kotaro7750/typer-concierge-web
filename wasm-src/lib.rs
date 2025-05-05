@@ -1,8 +1,8 @@
-use async_lock::Mutex as AsyncMutex;
 use library::Library;
 use library::{dictionary::DictionaryCatalog, QueryRequestFromUI};
 use std::num::NonZeroUsize;
 use std::sync::LazyLock;
+use tokio::sync::Mutex;
 use typing_engine::{
     QueryRequest, TypingEngine, VocabularyOrder, VocabularyQuantifier, VocabularySeparator,
 };
@@ -11,9 +11,9 @@ use wasm_bindgen::prelude::*;
 mod library;
 mod utils;
 
-static LIBRARY: LazyLock<AsyncMutex<Library>> = LazyLock::new(|| AsyncMutex::new(Library::new()));
-static TYPING_ENGINE: LazyLock<AsyncMutex<TypingEngine>> =
-    LazyLock::new(|| AsyncMutex::new(TypingEngine::new()));
+static LIBRARY: LazyLock<Mutex<Library>> = LazyLock::new(|| Mutex::new(Library::new()));
+static TYPING_ENGINE: LazyLock<Mutex<TypingEngine>> =
+    LazyLock::new(|| Mutex::new(TypingEngine::new()));
 
 #[derive(Debug)]
 /// Error kind from WebAssembly
@@ -90,8 +90,8 @@ pub async fn get_dictionary_catalog() -> Result<DictionaryCatalog, WasmError> {
 }
 
 #[wasm_bindgen]
-pub async fn confirm_query(query_request: QueryRequestFromUI) -> Result<(), WasmError> {
-    let library = LIBRARY.lock().await;
+pub fn confirm_query(query_request: QueryRequestFromUI) -> Result<(), WasmError> {
+    let library = LIBRARY.blocking_lock();
 
     let vocabulary_entries = library.construct_vocabulary_entries_for_request(&query_request);
 
@@ -106,7 +106,7 @@ pub async fn confirm_query(query_request: QueryRequestFromUI) -> Result<(), Wasm
         VocabularyOrder::Random,
     );
 
-    let mut typing_engine = TYPING_ENGINE.lock().await;
+    let mut typing_engine = TYPING_ENGINE.blocking_lock();
 
     typing_engine.init(request);
 

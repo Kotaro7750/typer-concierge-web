@@ -76,7 +76,7 @@ export function useLibrary(errorHandler: (e: Error) => void): [Library, LibraryO
     }
   }
 
-  const confirmQuery = async (keyStrokeCountThreshold: number) => {
+  const confirmQuery = (keyStrokeCountThreshold: number) => {
     let request: QueryRequestFromUI = {
       dictionaryType: usedDictionaryType,
       usedDictionaries: effectiveUsedDictionaries,
@@ -87,7 +87,7 @@ export function useLibrary(errorHandler: (e: Error) => void): [Library, LibraryO
       request.keyStrokeCountThreshold = keyStrokeCountThreshold;
     }
 
-    await confirm_query(request);
+    confirm_query(request);
   };
 
   const [usedDictionaryType, setUsedDictionaryType] = useState<DictionaryType>('word');
