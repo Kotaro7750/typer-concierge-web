@@ -31,14 +31,10 @@ function IndividualToast(props: { n: Notification, index: number, onClose: () =>
     : n.severity === 'warning' ? 'bg-warning-subtle'
       : 'bg-danger-subtle';
 
-  const title = n.severity === 'success' ? 'Success'
-    : n.severity === 'warning' ? 'Warning'
-      : 'Error';
-
   return (
     <div key={props.index} className="toast fade show" role="alert" aria-live="assertive" aria-atomic="true" >
       <div className={`toast-header ${headerColorClass}`} >
-        <strong className="me-auto" > {title} </strong>
+        <strong className="me-auto" > {n.title} </strong>
         < button type="button" onClick={() => props.onClose()} className="btn-close" data-bs-dismiss="toast" aria-label="Close" > </button>
       </div>
       < div className={`toast-body ${bodyColorClass}`} >

@@ -4,6 +4,7 @@ import { ViewPane } from './ViewPane';
 import { KeyStrokePane } from './KeyStrokePane';
 
 import { GameStateContext } from './App';
+import { NotificationContext } from './App';
 
 import { useMilliSecondTimer } from './useMilliSecondTimer';
 import { useTypingEngine } from './useTypingEngine';
@@ -14,6 +15,7 @@ export function TypingView() {
   const isStarted = useRef(false);
 
   const gameStateContext = useContext(GameStateContext);
+  const notificationRegisterer = useContext(NotificationContext);
 
   const cancelTyping = () => {
     // これもuseEffect内でやる必要があるかもしれない
@@ -32,14 +34,24 @@ export function TypingView() {
     // ShiftとかAltとかの特殊文字を防ぐために長さでバリデーションをかける
     // 本当はもっといいやり方があるはず
     if (key.length == 1 && ' '.charCodeAt(0) <= key.charCodeAt(0) && key.charCodeAt(0) <= '~'.charCodeAt(0)) {
-      handleInput(key, elapsedTime);
+      try {
+        handleInput(key, elapsedTime);
+      } catch (e) {
+        notificationRegisterer.get('error')?.('キー入力処理エラー', e instanceof Error ? e.message : String(e));
+        gameStateContext.setGameState('ModeSelect');
+      }
     }
   }
 
   // 初回レンダリング終了時にタイマーをスタートさせる
   useEffect(() => {
     if (isStarted.current === false) {
-      startGame();
+      try {
+        startGame();
+      } catch (e) {
+        notificationRegisterer.get('error')?.('ゲーム開始エラー', e instanceof Error ? e.message : String(e));
+        gameStateContext.setGameState('ModeSelect');
+      }
       startTimer();
 
       isStarted.current = true;

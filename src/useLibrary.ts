@@ -1,9 +1,55 @@
 import { useEffect, useReducer, useState, useActionState, startTransition } from 'react';
 import { Library, LibraryOperator } from './@types/type';
 import { get_dictionary_catalog, DictionaryType, DictionaryOrigin, DictionaryCatalog, confirm_query, QueryRequestFromUI } from '../pkg/typer_concierge_web';
+import { NotificationRegistererMap } from './useNotification';
 
-export function useLibrary(errorHandler: (e: Error) => void): [Library, LibraryOperator] {
+export function useLibrary(notificationRegisterer: NotificationRegistererMap): [Library, LibraryOperator] {
 
+  // 
+  // Setting dictionary type
+  //
+  const [usedDictionaryType, setUsedDictionaryType] = useState<DictionaryType>('word');
+
+  //
+  // Loading dictionary catalog
+  //
+  const initialCatalog: DictionaryCatalog = {
+    word: [],
+    sentence: [],
+  }
+  const loadCatalog = async (_: { catalog: DictionaryCatalog, error: any }) => {
+    const loadTimestamp = Date.now();
+    let catalog: DictionaryCatalog = initialCatalog;
+
+    try {
+      catalog = await get_dictionary_catalog();
+    } catch (e: any) {
+      return { catalog: initialCatalog, error: e instanceof Error ? e.message : String(e), t: loadTimestamp };
+    }
+
+    // XXX
+    // Exclusion from used dictionary list is needed
+
+    return { catalog: catalog, error: null, t: loadTimestamp };
+  };
+  const [catalog, kickLoadCatalog, isLibraryLoading] = useActionState<{ catalog: DictionaryCatalog, error: any, t: number }>(loadCatalog, { catalog: initialCatalog, error: null, t: 0 });
+
+  // Load dictionary kicked automatically on first render
+  useEffect(() => {
+    startTransition(() => kickLoadCatalog());
+  }, []);
+
+  // Send to global notifier
+  useEffect(() => {
+    // For avoiding 'Rendered more hooks than during the previous render.' error, sending to global notifier is not called directly in useActionState
+    if (catalog.error) {
+      notificationRegisterer.get('error')?.('辞書情報取得エラー', catalog.error);
+    }
+  }, [catalog]);
+
+  // 
+  // Use and Disuse dictionary
+  //
   type LibraryReducerActionType =
     { type: 'use', dictionaryName: string, dictionaryOrigin: DictionaryOrigin }
     | { type: 'disuse', dictionaryName: string, dictionaryOrigin: DictionaryOrigin }
@@ -16,28 +62,12 @@ export function useLibrary(errorHandler: (e: Error) => void): [Library, LibraryO
     },
   }
 
-  const existInCatalog = (catalog: DictionaryCatalog, dictionaryName: string, dictionaryType: DictionaryType, dictionaryOrigin: DictionaryOrigin) => {
-    const catalogOfType = dictionaryType == 'word' ? catalog.word : catalog.sentence;
-
-    for (let dictionaryInfo of catalogOfType) {
-      if (dictionaryInfo.dictionaryType != dictionaryType) {
-        throw new Error(`DictionaryType mismatch in ${dictionaryInfo.name} expected ${dictionaryType}, but ${dictionaryInfo.dictionaryType}`);
-      }
-
-      if (dictionaryInfo.name == dictionaryName && dictionaryInfo.origin == dictionaryOrigin) {
-        return true;
-      }
-    }
-
-    return false;
-  };
-
   // 辞書群関連をまとめて１つのstateとして管理する
   const libraryReducer: React.Reducer<LibraryInner, LibraryReducerActionType> = (state: LibraryInner, action: LibraryReducerActionType) => {
     switch (action.type) {
       // 現在有効になっている辞書タイプで利用可能な辞書から追加する
       case 'use':
-        if (!existInCatalog(catalog, action.dictionaryName, usedDictionaryType, action.dictionaryOrigin)) {
+        if (!existInCatalog(catalog.catalog, action.dictionaryName, usedDictionaryType, action.dictionaryOrigin)) {
           throw new Error(`used dictionary(${action.dictionaryName}) not in catalog`);
         }
 
@@ -56,7 +86,7 @@ export function useLibrary(errorHandler: (e: Error) => void): [Library, LibraryO
 
       // 現在有効になっている辞書タイプで利用可能な辞書を不使用とする
       case 'disuse':
-        if (!existInCatalog(catalog, action.dictionaryName, usedDictionaryType, action.dictionaryOrigin)) {
+        if (!existInCatalog(catalog.catalog, action.dictionaryName, usedDictionaryType, action.dictionaryOrigin)) {
           throw new Error(`disused dictionary(${action.dictionaryName}) not in catalog`);
         }
 
@@ -76,6 +106,10 @@ export function useLibrary(errorHandler: (e: Error) => void): [Library, LibraryO
     }
   }
 
+  const [innerLibrary, dispatchLibrary] = useReducer(libraryReducer, {
+    usedDictionaries: { word: [], sentence: [] },
+  });
+
   const confirmQuery = (keyStrokeCountThreshold: number) => {
     let request: QueryRequestFromUI = {
       dictionaryType: usedDictionaryType,
@@ -90,28 +124,17 @@ export function useLibrary(errorHandler: (e: Error) => void): [Library, LibraryO
     confirm_query(request);
   };
 
-  const [usedDictionaryType, setUsedDictionaryType] = useState<DictionaryType>('word');
 
-  const initialCatalog: DictionaryCatalog = {
-    word: [],
-    sentence: [],
-  }
-  const loadCatalog = async (_: DictionaryCatalog) => {
-    let catalog: DictionaryCatalog = initialCatalog;
+  // 返却する型は現在有効な辞書タイプの情報のみを持つ
+  const effectiveUsedDictionaries = usedDictionaryType == 'word' ? innerLibrary.usedDictionaries.word : innerLibrary.usedDictionaries.sentence;
+  const effectiveCatalog = usedDictionaryType == 'word' ? catalog.catalog.word : catalog.catalog.sentence;
 
-    try {
-      catalog = await get_dictionary_catalog();
-    } catch (e: any) {
-      errorHandler(e);
-    }
-
-    // XXX
-    // Exclusion from used dictionary list is needed
-
-    return catalog;
+  const library: Library = {
+    usedDictionaries: effectiveUsedDictionaries,
+    catalog: effectiveCatalog,
+    usedDictionaryType,
+    isAvailableDictionariesLoading: isLibraryLoading,
   };
-
-  const [catalog, kickLoadCatalog, isLibraryLoading] = useActionState<DictionaryCatalog>(loadCatalog, initialCatalog);
 
   const operator: LibraryOperator = {
     use: (dictionaryName: string, dictionaryOrigin: DictionaryOrigin) => {
@@ -131,25 +154,21 @@ export function useLibrary(errorHandler: (e: Error) => void): [Library, LibraryO
     },
   }
 
-  // 依存なしなので初回のみ
-  useEffect(() => {
-    startTransition(() => kickLoadCatalog());
-  }, []);
-
-  const [innerLibrary, dispatchLibrary] = useReducer(libraryReducer, {
-    usedDictionaries: { word: [], sentence: [] },
-  });
-
-  // 返却する型は現在有効な辞書タイプの情報のみを持つ
-  const effectiveUsedDictionaries = usedDictionaryType == 'word' ? innerLibrary.usedDictionaries.word : innerLibrary.usedDictionaries.sentence;
-  const effectiveCatalog = usedDictionaryType == 'word' ? catalog.word : catalog.sentence;
-
-  const library: Library = {
-    usedDictionaries: effectiveUsedDictionaries,
-    catalog: effectiveCatalog,
-    usedDictionaryType,
-    isAvailableDictionariesLoading: isLibraryLoading,
-  };
-
   return [library, operator];
 }
+
+function existInCatalog(catalog: DictionaryCatalog, dictionaryName: string, dictionaryType: DictionaryType, dictionaryOrigin: DictionaryOrigin): boolean {
+  const catalogOfType = dictionaryType == 'word' ? catalog.word : catalog.sentence;
+
+  for (let dictionaryInfo of catalogOfType) {
+    if (dictionaryInfo.dictionaryType != dictionaryType) {
+      throw new Error(`DictionaryType mismatch in ${dictionaryInfo.name} expected ${dictionaryType}, but ${dictionaryInfo.dictionaryType}`);
+    }
+
+    if (dictionaryInfo.name == dictionaryName && dictionaryInfo.origin == dictionaryOrigin) {
+      return true;
+    }
+  }
+
+  return false;
+};

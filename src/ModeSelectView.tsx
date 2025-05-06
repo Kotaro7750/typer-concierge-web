@@ -4,11 +4,13 @@ import { SelectDictionaryPane } from './SelectDictionaryPane';
 
 import { GameStateContext } from './App';
 import { LibraryContext } from './App';
+import { NotificationContext } from './App';
 
 const LAP_LENGTH = 50;
 
 export function ModeSelectView() {
   const gameStateContext = useContext(GameStateContext);
+  const notificationRegisterer = useContext(NotificationContext);
 
   // NOTE: 分割代入を使っていこう cf. <https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment>
   const { library: { usedDictionaryType, usedDictionaries: usedDictionaries, catalog: availableDictionaries, isAvailableDictionariesLoading }, libraryOperator } = useContext(LibraryContext);
@@ -24,7 +26,13 @@ export function ModeSelectView() {
       return;
     }
 
-    libraryOperator.confirmQuery(keyStrokeCountThreshold);
+
+    try {
+      libraryOperator.confirmQuery(keyStrokeCountThreshold);
+    } catch (e) {
+      notificationRegisterer.get('error')?.('問題文作成エラー', e instanceof Error ? e.message : String(e));
+      return;
+    }
     gameStateContext.setGameState('TransitionToTyping');
   }
 

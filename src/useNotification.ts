@@ -3,12 +3,17 @@ import { useState } from "react";
 export type NotificationSeverity = 'success' | 'warning' | 'error';
 export type Notification = {
   id: string;
+  title: string;
   message: string;
   severity: NotificationSeverity;
   timeoutId: number;
 }
 
-export function useNotification(timeout: number): [Notification[], (message: string, severity: NotificationSeverity) => void, (id: string) => void] {
+export type NotificationRegisterer = (title: string, message: string) => void;
+export type NotificationRegistererMap = Map<NotificationSeverity, NotificationRegisterer>;
+export type NotificationUnregisterer = (id: string) => void;
+
+export function useNotification(timeout: number): [Notification[], NotificationRegistererMap, NotificationUnregisterer] {
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
   const unregister = (id: string) => {
@@ -22,12 +27,13 @@ export function useNotification(timeout: number): [Notification[], (message: str
 
   }
 
-  const register = (message: string, severity: NotificationSeverity) => {
+  const register = (title: string, message: string, severity: NotificationSeverity) => {
     const id = self.crypto.randomUUID();
 
     setNotifications((prev) => {
       const newNotification: Notification = {
         id: id,
+        title: title,
         message: message,
         severity: severity,
         timeoutId: setTimeout(() => {
@@ -38,6 +44,14 @@ export function useNotification(timeout: number): [Notification[], (message: str
     });
   };
 
-  return [notifications, register, unregister];
+  const registererMap: NotificationRegistererMap = new Map(
+    [
+      ['success', (title: string, message: string) => register(title, message, 'success')],
+      ['warning', (title: string, message: string) => register(title, message, 'warning')],
+      ['error', (title: string, message: string) => register(title, message, 'error')],
+    ]
+  );
+
+  return [notifications, registererMap, unregister];
 }
 
