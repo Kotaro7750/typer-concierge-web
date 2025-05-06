@@ -1,13 +1,19 @@
+use display::DisplayInformation;
 use library::Library;
 use library::{dictionary::DictionaryCatalog, QueryRequestFromUI};
+use serde::{Deserialize, Serialize};
 use std::num::NonZeroUsize;
 use std::sync::LazyLock;
+use std::time::Duration;
 use tokio::sync::Mutex;
+use tsify::Tsify;
 use typing_engine::{
-    QueryRequest, TypingEngine, VocabularyOrder, VocabularyQuantifier, VocabularySeparator,
+    KeyStrokeCharError, LapRequest, QueryRequest, TypingEngine, VocabularyOrder,
+    VocabularyQuantifier, VocabularySeparator,
 };
 use wasm_bindgen::prelude::*;
 
+mod display;
 mod library;
 mod utils;
 
@@ -21,6 +27,8 @@ enum WasmErrorKind {
     CannotGetWindow,
     CannotSerDe(serde_wasm_bindgen::Error),
     JsError(JsValue),
+    StrokedKeyInvalid(String),
+    TypingEngineError(typing_engine::TypingEngineError),
 }
 
 impl From<WasmErrorKind> for JsValue {
@@ -29,6 +37,10 @@ impl From<WasmErrorKind> for JsValue {
             WasmErrorKind::CannotGetWindow => JsValue::from_str("Cannot get global `window`"),
             WasmErrorKind::JsError(value) => value,
             WasmErrorKind::CannotSerDe(err) => err.into(),
+            WasmErrorKind::StrokedKeyInvalid(key) => {
+                JsValue::from_str(&format!("Invalid key stroke: {}", key))
+            }
+            WasmErrorKind::TypingEngineError(err) => JsValue::from_str(&format!("{:?}", err)),
         }
     }
 }
@@ -57,6 +69,22 @@ impl From<serde_wasm_bindgen::Error> for WasmError {
     fn from(value: serde_wasm_bindgen::Error) -> Self {
         WasmError {
             kind: WasmErrorKind::CannotSerDe(value),
+        }
+    }
+}
+
+impl From<typing_engine::TypingEngineError> for WasmError {
+    fn from(value: typing_engine::TypingEngineError) -> Self {
+        WasmError {
+            kind: WasmErrorKind::TypingEngineError(value),
+        }
+    }
+}
+
+impl From<KeyStrokeCharError> for WasmError {
+    fn from(value: KeyStrokeCharError) -> Self {
+        Self {
+            kind: WasmErrorKind::StrokedKeyInvalid(value.to_string()),
         }
     }
 }
@@ -111,4 +139,59 @@ pub fn confirm_query(query_request: QueryRequestFromUI) -> Result<(), WasmError>
     typing_engine.init(request);
 
     Ok(())
+}
+
+#[wasm_bindgen]
+pub fn start_game() -> Result<DisplayInformation, WasmError> {
+    let mut typing_engine = TYPING_ENGINE.blocking_lock();
+
+    typing_engine.start()?;
+
+    Ok(typing_engine
+        .construct_display_info(LapRequest::IdealKeyStroke(NonZeroUsize::new(50).unwrap()))?
+        .into())
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Tsify)]
+#[tsify(from_wasm_abi)]
+#[serde(rename_all = "camelCase")]
+/// A struct representing the information of a key stroke
+pub struct KeyStrokeInfo {
+    key: String,
+    elapsed_time_ms: u64,
+}
+
+#[derive(Debug, Clone, Serialize, Tsify)]
+#[tsify(into_wasm_abi)]
+#[serde(rename_all = "camelCase")]
+/// A struct repsenting the result of a key stroke
+pub struct StrokeKeyResult {
+    is_finished: bool,
+    display_information: DisplayInformation,
+}
+
+#[wasm_bindgen]
+pub fn stroke_key(key_stroke_info: KeyStrokeInfo) -> Result<StrokeKeyResult, WasmError> {
+    let mut typing_engine = TYPING_ENGINE.blocking_lock();
+
+    let elapsed_time_duration = Duration::from_millis(key_stroke_info.elapsed_time_ms);
+
+    if key_stroke_info.key.chars().count() != 1 {
+        return Err(WasmError::new(WasmErrorKind::StrokedKeyInvalid(
+            key_stroke_info.key,
+        )));
+    }
+    let key_stroke_char = key_stroke_info.key.chars().next().unwrap();
+
+    let is_finished = typing_engine
+        .stroke_key_with_elapsed_time(key_stroke_char.try_into()?, elapsed_time_duration)?;
+
+    let display_information: DisplayInformation = typing_engine
+        .construct_display_info(LapRequest::IdealKeyStroke(NonZeroUsize::new(50).unwrap()))?
+        .into();
+
+    Ok(StrokeKeyResult {
+        is_finished,
+        display_information,
+    })
 }

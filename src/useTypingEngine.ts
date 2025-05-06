@@ -1,24 +1,24 @@
 import _, { useState } from 'react';
 import { DisplayInfo } from './@types/type';
+import { start_game, stroke_key } from '../pkg/typer_concierge_web';
 
-export function useTypingEngine(onFinished: () => void): [DisplayInfo | null, () => void, (arg0: string, arg1: number) => void] {
+export function useTypingEngine(onFinished: () => void): [DisplayInfo | null, () => void, (c: string, elapsedTimeMs: number) => void] {
   const [displayInfo, setDisplayInfo] = useState<DisplayInfo | null>(null);
 
 
   const startGame = () => {
-    // invoke<DisplayInfo>('start_game').then(returned => setDisplayInfo(returned));
+    // XXX try-catch
+    const displayInfo = start_game();
+    setDisplayInfo(displayInfo);
   }
 
-  const onInput = (c: string, elapsedTime: number) => {
-    // XXX
-    // invoke<[boolean, DisplayInfo]>('stroke_key', { keyStrokeInfo: { key: c, elapsedTime: elapsedTime } })
-    //   .then(returned => {
-    //     setDisplayInfo(returned[1]);
-    //     if (returned[0]) {
-    //       onFinished();
-    //     }
-    //   })
-    //   .catch(e => console.log(e));
+  const onInput = (c: string, elapsedTimeMs: number) => {
+    // XXX try-catch
+    const result = stroke_key({ key: c, elapsedTimeMs: elapsedTimeMs })
+    setDisplayInfo(result.displayInformation);
+    if (result.isFinished) {
+      onFinished();
+    }
   }
 
   return [displayInfo, startGame, onInput]
