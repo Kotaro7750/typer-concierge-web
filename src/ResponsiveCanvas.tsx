@@ -14,7 +14,7 @@ export function ResponsiveCanvas(props: { sensitivity: any[], draw: (ctx: Canvas
     canvasRef.current.width = Math.floor(containerRef.current.clientWidth * scale);
     canvasRef.current.height = Math.floor(containerRef.current.clientHeight * scale);
 
-    let ctx = canvasRef.current.getContext('2d');
+    const ctx = canvasRef.current.getContext('2d');
     if (ctx === null) {
       return;
     }
@@ -27,7 +27,7 @@ export function ResponsiveCanvas(props: { sensitivity: any[], draw: (ctx: Canvas
       return;
     }
 
-    let ctx = canvasRef.current.getContext('2d');
+    const ctx = canvasRef.current.getContext('2d');
     if (ctx === null) {
       return;
     }

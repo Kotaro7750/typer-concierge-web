@@ -6,7 +6,7 @@ import React from 'react';
 // Ex. windowCapacityが5でcurrentIndexが2なら0,1,2,3,4行目を表示する
 // windowCapacityが偶数ならcurrentIndexの後を多く表示する
 // Ex. windowCapacityが4でcurrentIndexが2なら1,2,3,4行目を表示する
-export function calcWindowInfo(listLen: number, currentLineIndex: number, windowCapacity: number): [number, number, number] {
+function calcWindowInfo(listLen: number, currentLineIndex: number, windowCapacity: number): [number, number, number] {
   const filledLineListLen = listLen > windowCapacity ? listLen : windowCapacity;
   // 表示ウィンドウの両端を決定する
   let firstLineIndex = currentLineIndex - (windowCapacity % 2 == 1 ? Math.floor(windowCapacity / 2) : (windowCapacity / 2 - 1));

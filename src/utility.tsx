@@ -43,7 +43,7 @@ export function constructCharacterStyleInformation(str: string, cursorPositions:
     cursorPositionDict[position] = true;
   });
 
-  let charStyleInfos: CharacterStyleInformation[] = [];
+  const charStyleInfos: CharacterStyleInformation[] = [];
 
   [...str].forEach((c, i) => {
     const element: CharacterStyleInformation = {
@@ -83,7 +83,7 @@ export function constructCanvasLine(charStyleInfos: CharacterStyleInformation[],
 
     x += isMonoWidthFont(charStyleInfo.c) ? monoCharacterWidth : doubleCharacterWidth;
 
-    let isLineEnd = (x + doubleCharacterWidth) > canvasWidth;
+    const isLineEnd = (x + doubleCharacterWidth) > canvasWidth;
     // 行末のスペースは分かるようにする
     if ((isLineEnd || i == (charStyleInfos.length - 1)) && charStyleInfo.c == ' ') {
       element.explicitSpace = true;
