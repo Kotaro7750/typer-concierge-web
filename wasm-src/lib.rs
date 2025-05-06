@@ -1,6 +1,7 @@
 use display::DisplayInformation;
 use library::Library;
 use library::{dictionary::DictionaryCatalog, QueryRequestFromUI};
+use result::TypingResult;
 use serde::{Deserialize, Serialize};
 use std::num::NonZeroUsize;
 use std::sync::LazyLock;
@@ -15,6 +16,7 @@ use wasm_bindgen::prelude::*;
 
 mod display;
 mod library;
+mod result;
 mod utils;
 
 static LIBRARY: LazyLock<Mutex<Library>> = LazyLock::new(|| Mutex::new(Library::new()));
@@ -194,4 +196,14 @@ pub fn stroke_key(key_stroke_info: KeyStrokeInfo) -> Result<StrokeKeyResult, Was
         is_finished,
         display_information,
     })
+}
+
+#[wasm_bindgen]
+pub fn get_result() -> Result<TypingResult, WasmError> {
+    let typing_engine = TYPING_ENGINE.blocking_lock();
+
+    Ok(typing_engine
+        .construct_result(LapRequest::IdealKeyStroke(NonZeroUsize::new(50).unwrap()))
+        .unwrap()
+        .into())
 }

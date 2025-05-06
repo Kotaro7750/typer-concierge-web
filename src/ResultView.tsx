@@ -1,13 +1,15 @@
 import React, { useEffect, useContext, useState } from 'react';
 import { TypingResultStatistics } from './@types/type';
-//import { ResultSummaryPane } from './ResultSummaryPane';
 
 import { GameStateContext } from './App';
+import { NotificationContext } from './App';
 import { ResultSummaryPane } from './ResultSummaryPane';
+import { get_result } from '../pkg/typer_concierge_web';
 
 // | undefinedとしているのは初回には結果はないため
 export function ResultView(): React.JSX.Element {
   const gameStateContext = useContext(GameStateContext);
+  const notificationRegisterer = useContext(NotificationContext);
   const [resultStatistics, setResultStatistics] = useState<TypingResultStatistics>({
     keyStroke: {
       wholeCount: 0,
@@ -32,9 +34,14 @@ export function ResultView(): React.JSX.Element {
   }
 
   useEffect(() => {
-    // XXX
-    // invoke<TypingResultStatistics>('get_result').then(m => setResultStatistics(m)).catch(e => console.log(e));
-  });
+    try {
+      const result = get_result();
+      setResultStatistics(result);
+    } catch (e) {
+      notificationRegisterer.get('error')?.('結果生成エラー', e instanceof Error ? e.message : String(e));
+    }
+
+  }, []);
 
   useEffect(() => {
     addEventListener('keydown', handleKeyDown);
