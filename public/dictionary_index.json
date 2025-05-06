@@ -2,23 +2,11 @@
   "word": {
     "常用漢字": {
       "path": "dictionary/Jouyoukanji.tconciergew"
-    },
-    "単語辞書1": {
-      "path": "dictionary/dictionary1.tconciergew"
-    },
-    "単語辞書2": {
-      "path": "dictionary/dictionary2.tconciergew"
     }
   },
   "sentence": {
     "走れメロス (1)": {
       "path": "dictionary/hashiremerosu_1.tconcierges"
-    },
-    "文章辞書1": {
-      "path": "dictionary/dictionary1.tconcierges"
-    },
-    "文章辞書2": {
-      "path": "dictionary/dictionary2.tconcierges"
     }
   }
 }
