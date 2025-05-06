@@ -1,4 +1,5 @@
 use display::DisplayInformation;
+use library::dictionary::DictionaryType;
 use library::Library;
 use library::{dictionary::DictionaryCatalog, QueryRequestFromUI};
 use result::TypingResult;
@@ -125,16 +126,28 @@ pub fn confirm_query(query_request: QueryRequestFromUI) -> Result<(), WasmError>
 
     let vocabulary_entries = library.construct_vocabulary_entries_for_request(&query_request);
 
-    let request = QueryRequest::new(
-        &vocabulary_entries,
-        VocabularyQuantifier::KeyStroke(
-            query_request
-                .key_stroke_count_threshold()
-                .unwrap_or(NonZeroUsize::new(150).unwrap()),
+    let request = match query_request.dictionary_type() {
+        DictionaryType::Word => QueryRequest::new(
+            &vocabulary_entries,
+            VocabularyQuantifier::KeyStroke(
+                query_request
+                    .key_stroke_count_threshold()
+                    .unwrap_or(NonZeroUsize::new(150).unwrap()),
+            ),
+            VocabularySeparator::WhiteSpace,
+            VocabularyOrder::Random,
         ),
-        VocabularySeparator::WhiteSpace,
-        VocabularyOrder::Random,
-    );
+        DictionaryType::Sentence => QueryRequest::new(
+            &vocabulary_entries,
+            VocabularyQuantifier::Vocabulary(
+                query_request
+                    .key_stroke_count_threshold()
+                    .unwrap_or(NonZeroUsize::new(vocabulary_entries.len()).unwrap()),
+            ),
+            VocabularySeparator::None,
+            VocabularyOrder::InOrder,
+        ),
+    };
 
     let mut typing_engine = TYPING_ENGINE.blocking_lock();
 
