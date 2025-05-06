@@ -1,4 +1,4 @@
-import _ from 'react';
+import React from 'react';
 
 // LineWindowで表示する行のインデックスを計算する
 // [開始インデックス,ウィンドウ内での現在の行のインデックス,終了インデックス]
@@ -29,7 +29,7 @@ export function calcWindowInfo(listLen: number, currentLineIndex: number, window
 }
 
 // 行リストの中からcurrentLineIndexの周辺のwindowCapacity行だけ表示する
-export function LineWindow(props: { lineList: JSX.Element[], currentLineIndex: number, windowCapacity: number }): JSX.Element {
+export function LineWindow(props: { lineList: React.JSX.Element[], currentLineIndex: number, windowCapacity: number }): React.JSX.Element {
 
   // windowCapacityよりも要素数が少ない場合には空の要素で埋める
   let filledLineList = Array.from(props.lineList);

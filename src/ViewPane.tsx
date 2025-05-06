@@ -1,9 +1,9 @@
-import _ from 'react';
+import React from 'react';
 import { ViewDisplayInfo } from './@types/type';
 import { ResponsiveCanvas } from './ResponsiveCanvas';
 import { constructCharacterStyleInformation, constructCanvasLine, calcLineWindowIndex } from './utility';
 
-export function ViewPane(props: { viewDisplayInfo: ViewDisplayInfo }): JSX.Element {
+export function ViewPane(props: { viewDisplayInfo: ViewDisplayInfo }): React.JSX.Element {
   const viewDisplayInfo = props.viewDisplayInfo;
 
   const draw = (ctx: CanvasRenderingContext2D, width: number, height: number) => {

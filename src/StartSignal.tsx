@@ -1,6 +1,6 @@
-import _, { useState } from 'react';
+import React, { useState } from 'react';
 
-export function StartSignal(props: { countdownTimer: number }): JSX.Element {
+export function StartSignal(props: { countdownTimer: number }): React.JSX.Element {
   const countdownTimerInt = Math.ceil(props.countdownTimer);
   const [initialCount] = useState(props.countdownTimer);
 

@@ -1,6 +1,6 @@
-import _, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 
-export function ResponsiveCanvas(props: { sensitivity: any[], draw: (ctx: CanvasRenderingContext2D, canvasWidth: number, canvasHeight: number) => void }): JSX.Element {
+export function ResponsiveCanvas(props: { sensitivity: any[], draw: (ctx: CanvasRenderingContext2D, canvasWidth: number, canvasHeight: number) => void }): React.JSX.Element {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 

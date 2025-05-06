@@ -1,7 +1,7 @@
-import _, { useState } from 'react';
+import React, { useState } from 'react';
 import { TypingResultStatistics } from './@types/type';
 
-function SubContent(props: { title: string, content: string }): JSX.Element {
+function SubContent(props: { title: string, content: string }): React.JSX.Element {
   return (
     <div className='w-100 h-100 d-flex flex-column align-items-center lh-sm'>
       <div className='text-secondary'>{props.title}</div>
@@ -10,7 +10,7 @@ function SubContent(props: { title: string, content: string }): JSX.Element {
   );
 }
 
-export function ResultSummaryPane(props: { summary: TypingResultStatistics }): JSX.Element {
+export function ResultSummaryPane(props: { summary: TypingResultStatistics }): React.JSX.Element {
   const [isWordCountIdeal, setIsWordCountIdeal] = useState<boolean>(false);
 
   const summary = props.summary;

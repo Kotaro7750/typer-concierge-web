@@ -2,10 +2,10 @@ import React from 'react';
 import { LibraryOperator } from './@types/type';
 import { DictionaryInfo, DictionaryOrigin } from '../pkg/typer_concierge_web';
 
-export function SelectDictionaryPane(props: { availableDictionaryList: DictionaryInfo[], usedDictionaryList: [DictionaryOrigin, string][], libraryOperator: LibraryOperator }): JSX.Element {
+export function SelectDictionaryPane(props: { availableDictionaryList: DictionaryInfo[], usedDictionaryList: [DictionaryOrigin, string][], libraryOperator: LibraryOperator }): React.JSX.Element {
   const usedDictionaryOneHot = new Map<string, boolean>(props.usedDictionaryList.map(e => [`${e[0]} ${e[1]}`, true]));
 
-  const elem: JSX.Element[] = [];
+  const elem: React.JSX.Element[] = [];
 
   // 辞書リストのそれぞれの辞書をトグルしたときのハンドラ
   function onChange(e: React.ChangeEvent<HTMLInputElement>, dictionaryName: string, dictionaryOrigin: DictionaryOrigin) {

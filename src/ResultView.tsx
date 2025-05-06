@@ -1,4 +1,4 @@
-import _, { useEffect, useContext, useState } from 'react';
+import React, { useEffect, useContext, useState } from 'react';
 import { TypingResultStatistics } from './@types/type';
 //import { ResultSummaryPane } from './ResultSummaryPane';
 
@@ -6,7 +6,7 @@ import { GameStateContext } from './App';
 import { ResultSummaryPane } from './ResultSummaryPane';
 
 // | undefinedとしているのは初回には結果はないため
-export function ResultView(): JSX.Element {
+export function ResultView(): React.JSX.Element {
   const gameStateContext = useContext(GameStateContext);
   const [resultStatistics, setResultStatistics] = useState<TypingResultStatistics>({
     keyStroke: {

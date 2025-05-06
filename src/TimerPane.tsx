@@ -1,6 +1,6 @@
-import _ from 'react';
+import React from 'react';
 
-export function TimerPane(props: { elapsedTimeMilli: number }): JSX.Element {
+export function TimerPane(props: { elapsedTimeMilli: number }): React.JSX.Element {
   const elapsedTimeS = props.elapsedTimeMilli / 1000;
   return (
     <div className='w-100 fs-1 text-end'>
