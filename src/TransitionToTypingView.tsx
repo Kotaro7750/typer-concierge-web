@@ -2,6 +2,7 @@ import _, { useEffect, useContext, useRef } from 'react';
 import { StartSignal } from './StartSignal';
 import { useCountdownTimer } from './useCountdownTimer';
 import { GameStateContext } from './App';
+import { Grid } from '@mui/material';
 
 export function TransitionToTypingView() {
   const gameStateContext = useContext(GameStateContext);
@@ -41,10 +42,8 @@ export function TransitionToTypingView() {
   });
 
   return (
-    <div className='w-100 vh-100 d-flex flex-row justify-content-center'>
-      <div className='w-50 d-flex flex-column justify-content-center'>
-        <StartSignal countdownTimer={countdownTimer} />
-      </div>
-    </div>
+    <Grid container width={'100%'} height={'100%'} justifyContent={'center'} alignItems={'center'}>
+      <StartSignal countdownTimer={countdownTimer} />
+    </Grid>
   );
 }
