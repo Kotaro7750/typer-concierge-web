@@ -7,6 +7,7 @@ import { TransitionToTypingView } from './TransitionToTypingView';
 import { TypingView } from './TypingView';
 import { ResultView } from './ResultView';
 import { NotificationToast } from './NotificationToast';
+import { createTheme, CssBaseline, ThemeProvider } from '@mui/material';
 
 export const GameStateContext = createContext<GameStateContextType>({} as GameStateContextType);
 export const LibraryContext = createContext<{ library: Library, libraryOperator: LibraryOperator }>({} as { library: Library, libraryOperator: LibraryOperator });
@@ -20,22 +21,53 @@ export function App() {
   const [library, libraryOperator] = useLibrary(registerNotification);
   return (
     <div className='vh-100 vw-100'>
-      <GameStateContext.Provider value={{ gameState: gameState, setGameState: setGameState }}>
-        <LibraryContext.Provider value={{ library: library, libraryOperator: libraryOperator }}>
-          <NotificationContext.Provider value={registerNotification}>
-            {
-              gameState === 'ModeSelect' ? <ModeSelectView />
-                : gameState === 'TransitionToTyping' ? <TransitionToTypingView />
-                  : gameState == 'Typing' ? <TypingView />
-                    : <ResultView />
-            }
-          </NotificationContext.Provider>
-        </LibraryContext.Provider>
-      </GameStateContext.Provider>
-      <NotificationToast
-        notifications={notifications}
-        unregisterNotification={unregisterNotification} />
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <GameStateContext.Provider value={{ gameState: gameState, setGameState: setGameState }}>
+          <LibraryContext.Provider value={{ library: library, libraryOperator: libraryOperator }}>
+            <NotificationContext.Provider value={registerNotification}>
+              {
+                gameState === 'ModeSelect' ? <ModeSelectView />
+                  : gameState === 'TransitionToTyping' ? <TransitionToTypingView />
+                    : gameState == 'Typing' ? <TypingView />
+                      : <ResultView />
+              }
+            </NotificationContext.Provider>
+          </LibraryContext.Provider>
+        </GameStateContext.Provider>
+        <NotificationToast
+          notifications={notifications}
+          unregisterNotification={unregisterNotification} />
+      </ThemeProvider>
     </div>
   );
 }
 
+import TyperConciergeFont from './assets/TyperConciergeFont-Regular.woff';
+
+const theme = createTheme({
+  typography: {
+    fontFamily: 'TyperConciergeFont',
+  },
+  components: {
+    MuiCssBaseline: {
+      styleOverrides: {
+        '@font-face': [{
+          fontFamily: 'TyperConciergeFont',
+          fontStyle: 'normal',
+          fontWeight: 400,
+          src: `url(${TyperConciergeFont}) format('woff')`,
+        }]
+      }
+    }
+  },
+  palette: {
+    mode: 'light',
+    primary: {
+      main: '#5863f8',
+    },
+    secondary: {
+      main: '#9d58f8',
+    },
+  },
+})

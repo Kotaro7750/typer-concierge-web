@@ -5,8 +5,35 @@ import { SelectDictionaryPane } from './SelectDictionaryPane';
 import { GameStateContext } from './App';
 import { LibraryContext } from './App';
 import { NotificationContext } from './App';
+import { Box, Button, ButtonGroup, CircularProgress, Grid, IconButton, Input, Slider, Stack, Step, StepLabel, Stepper, Tooltip, Typography } from '@mui/material';
+import { Refresh } from '@mui/icons-material';
+import { DictionaryType } from '../pkg/typer_concierge_web';
 
 const LAP_LENGTH = 50;
+
+function ModeSelectInstruction(props: { selectedDictionaryType: DictionaryType, usedDictionariesSelected: boolean }) {
+  return (
+    <Box width={'100%'} height={'100%'} >
+      <Stepper orientation='vertical' activeStep={0}>
+        <Step completed={SelectDictionaryPane !== null}>
+          <StepLabel key={1}>辞書タイプを選択</StepLabel>
+        </Step>
+        <Step completed={props.usedDictionariesSelected}>
+          <StepLabel key={2} optional={<Typography variant='caption'>複数選択可</Typography>}>辞書をクリックして選択</StepLabel>
+        </Step>
+        {
+          props.selectedDictionaryType == 'word' &&
+          <Step completed={true}>
+            <StepLabel key={3} >スライダーでタイプ数を選択</StepLabel>
+          </Step>
+        }
+        <Step>
+          <StepLabel key={4} optional={<Typography variant='caption'>スペースキーでも可能</Typography>}>Startで開始</StepLabel>
+        </Step>
+      </Stepper>
+    </Box>
+  );
+}
 
 export function ModeSelectView() {
   const gameStateContext = useContext(GameStateContext);
@@ -50,68 +77,81 @@ export function ModeSelectView() {
     return () => { removeEventListener('keydown', handleKeyDown) }
   });
 
-  const WORD_TOOLTIP_TEXT = `辞書（.tconciergew形式のファイル）に含まれる単語からいくつかランダムに選びます。\n文章との併用はできません。`;
-  const SENTENCE_TOOLTIP_TEXT = `辞書（.tconcierges形式のファイル）に含まれる文章からランダムに選びます。\n単語との併用はできません。`
+  const WORD_TOOLTIP_TEXT = `辞書に含まれる単語からいくつかランダムに選びます。\n文章との併用はできません。`;
+  const SENTENCE_TOOLTIP_TEXT = `辞書に含まれる文章から全て順番通りに選びます。\n単語との併用はできません。`
 
-  const KEY_STROKE_THRESHOLD_TOOLTIP_TEXT = 'ローマ字を何文字打ったらゲームが終了するかというタイプ数です。\n平均的な人だと1分間に150から250タイプできるとされているので、1分間のゲームをしたい場合にはこれくらいの値にすると良いです。';
+  const KEY_STROKE_THRESHOLD_TOOLTIP_TEXT = 'ローマ字を何文字打ったらゲームが終了するかというタイプ数です。\n平均的な人だと1分間に150から250タイプできるとされているので、1分間のゲームをしたい場合には200程度にすると良いです。';
 
   return (
-    <div className='w-100 vh-100 d-flex flex-row justify-content-center'>
-      <div className='w-50 d-flex flex-column justify-content-center'>
-        <div className='row mb-1'>
-          <div className='p-0 d-flex w-100'>
+    <Box width={'100vw'} height={'100vh'} >
+      <Stack width={'100%'} height={'100%'} justifyContent={'center'} direction={'column'}>
+        <Grid container columns={12} spacing={8} height={'50%'}>
+          <Grid size={7} offset={1}>
+            {/* 左側のペイン - 辞書選択 */}
+            <Box height={'100%'}>
+              <Stack width={'100%'} height={'100%'} direction={'column'} spacing={2}>
+                <Grid container justifyContent={'space-between'}>
+                  <ButtonGroup>
+                    <Tooltip title={WORD_TOOLTIP_TEXT} placement='top'>
+                      <Button variant={usedDictionaryType === 'word' ? 'contained' : 'outlined'} onClick={() => libraryOperator.setType('word')}>単語</Button>
+                    </Tooltip>
 
-            <div className='p-0 d-flex bg-white'>
-              <div className='btn-group'>
-                <label className={`btn ${usedDictionaryType == 'word' ? 'btn-secondary' : 'btn-outline-secondary'} text-dark border border-secondary border-2`} data-bs-toggle='tooltip' data-bs-placement='top' title={WORD_TOOLTIP_TEXT}>
-                  単語<input type='radio' className='btn-check' disabled={isAvailableDictionariesLoading} onClick={() => libraryOperator.setType('word')} />
-                </label>
+                    <Tooltip title={SENTENCE_TOOLTIP_TEXT} placement='top'>
+                      <Button variant={usedDictionaryType === 'sentence' ? 'contained' : 'outlined'} onClick={() => libraryOperator.setType('sentence')}>文章</Button>
+                    </Tooltip>
+                  </ButtonGroup>
 
-                <label className={`btn ${usedDictionaryType == 'sentence' ? 'btn-secondary' : 'btn-outline-secondary'} text-dark border border-secondary border-2 border-start-0`} data-bs-toggle='tooltip' data-bs-placement='top' title={SENTENCE_TOOLTIP_TEXT}>
-                  文章<input type='radio' className='btn-check' disabled={isAvailableDictionariesLoading} onClick={() => libraryOperator.setType('sentence')} />
-                </label>
-              </div>
-            </div>
+                  <Box>
+                    <IconButton onClick={() => { libraryOperator.load(); }} disabled={isAvailableDictionariesLoading} >
+                      <Refresh />
+                    </IconButton>
+                  </Box>
+                </Grid>
 
-            <div className='p-0 pt-2 d-flex justify-content-end ms-auto'>
-              <button className='btn btn-sm btn-outline-success' disabled={isAvailableDictionariesLoading} onClick={() => { libraryOperator.load(); }}><i className='bi bi-arrow-clockwise'></i></button>
-            </div>
-          </div>
-        </div>
+                <Box border={1} p={1} borderRadius={1} borderColor={'primary.main'} height={'50%'}>
+                  {isAvailableDictionariesLoading ?
+                    <Stack width={'100%'} height={'100%'} justifyContent={'center'}>
+                      <Grid container justifyContent={'center'} alignItems={'center'} height={'100%'} >
+                        <CircularProgress />
+                      </Grid>
+                    </Stack>
+                    :
+                    <SelectDictionaryPane availableDictionaryList={availableDictionaries} usedDictionaryList={usedDictionaries} libraryOperator={libraryOperator} />
+                  }
+                </Box>
 
-        <div className='h-25 row p-2 border border-secondary rounded-3 border-2 bg-white'>
-          {isAvailableDictionariesLoading ?
-            <div className='h-100 w-100 d-flex justify-content-center align-items-center'>
-              <div className="spinner-border" role='status'>
-                <span className='visually-hidden'>Loading</span>
-              </div>
-            </div>
-            :
-            <SelectDictionaryPane availableDictionaryList={availableDictionaries} usedDictionaryList={usedDictionaries} libraryOperator={libraryOperator} />
-          }
-        </div>
+                {
+                  usedDictionaryType == 'word'
+                    ? (
+                      <Grid container justifyContent={'center'} >
+                        <Grid container justifyContent={'center'} width={'75%'} >
+                          <Grid size={10}>
+                            <Slider value={keyStrokeCountThreshold} min={LAP_LENGTH} max={600} step={LAP_LENGTH} onChange={(_: Event, newValue: number) => setKeyStrokeCountThreshold(newValue)} />
+                          </Grid>
+                          <Grid container justifyContent={'center'} size={2}>
+                            <Tooltip title={KEY_STROKE_THRESHOLD_TOOLTIP_TEXT} placement='top'>
+                              <Input value={keyStrokeCountThreshold} size='small' onChange={(e) => setKeyStrokeCountThreshold(Number(e.target.value))} inputProps={{ step: LAP_LENGTH, min: LAP_LENGTH, max: 600, type: 'number', 'aria-labelledby': 'input-slider' }} />
+                            </Tooltip>
+                          </Grid>
+                        </Grid>
+                      </Grid>
+                    )
+                    : undefined
+                }
 
-        {
-          usedDictionaryType == 'word'
-            ? (
-              <div className='row d-flex justify-content-center mt-2'>
-                <div className='d-flex justify-content-center'>
-                  <label className='form-label w-75 d-flex'>
-                    <input type='range' className='form-range w-75' min={LAP_LENGTH} max={600} step={LAP_LENGTH} value={keyStrokeCountThreshold} onChange={e => setKeyStrokeCountThreshold(Number(e.target.value))} />
-                    <span className='fs-6 text-nowrap ms-auto'>{keyStrokeCountThreshold}<i className='bi bi-question-circle' data-bs-toggle='tooltip' data-bs-placement='top' title={KEY_STROKE_THRESHOLD_TOOLTIP_TEXT} /></span>
-                  </label>
-                </div>
-              </div>
-            )
-            : undefined
-        }
+                <Grid container justifyContent={'center'}>
+                  <Button onClick={confirmReady} variant='contained' size='large' disabled={!canStart() || isAvailableDictionariesLoading} >Start</Button>
+                </Grid>
+              </Stack>
+            </Box>
+          </Grid>
 
-        <div className='row d-flex justify-content-center mt-3'>
-          <div className='col-6 d-flex justify-content-center'>
-            <button onClick={confirmReady} className='btn btn-lg btn-primary' disabled={!canStart() || isAvailableDictionariesLoading}>Start</button>
-          </div>
-        </div>
-      </div>
-    </div>
+          {/* 右側のペイン - 説明 */}
+          <Grid size={3} >
+            <ModeSelectInstruction selectedDictionaryType={usedDictionaryType} usedDictionariesSelected={usedDictionaries.length > 0} />
+          </Grid>
+        </Grid>
+      </Stack >
+    </Box >
   );
 }
