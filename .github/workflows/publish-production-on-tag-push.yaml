@@ -17,6 +17,12 @@ jobs:
         with:
           node-version: '22'
 
+      - name: Install wasm-pack
+        run: npm install -g wasm-pack
+
+      - name: Build WASM
+        run: wasm-pack build
+
       - name: Install dependencies
         run: npm install
 
