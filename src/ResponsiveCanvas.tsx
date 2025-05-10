@@ -38,7 +38,7 @@ export function ResponsiveCanvas(props: { sensitivity: any[], draw: (ctx: Canvas
 
   return (
     <Box width={'100%'} height={'100%'} ref={containerRef}>
-      <canvas className='d-block w-100 h-100' ref={canvasRef} />
+      <canvas style={{ display: 'block', width: '100%', height: '100%' }} ref={canvasRef} />
     </Box>
   );
 }
