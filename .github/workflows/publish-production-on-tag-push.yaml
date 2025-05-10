@@ -23,10 +23,8 @@ jobs:
       - name: Build the app
         run: npm run build
 
-      - name: Deploy to Cloudflare Pages
-        uses: cloudflare/pages-action@v1
+      - name: Deploy
+        uses: cloudflare/wrangler-action@v3
         with:
-          api-token: ${{ secrets.CF_API_TOKEN }}
-          project-name: typer-concierge
-          directory: ./dist
-
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          command: pages deploy ./dist --project-name=typer-concierge
