@@ -3,6 +3,7 @@ import { StartSignal } from './StartSignal';
 import { useCountdownTimer } from './useCountdownTimer';
 import { GameStateContext } from './App';
 import { Grid } from '@mui/material';
+import { trackEvent } from './analyticsUtils';
 
 export function TransitionToTypingView() {
   const gameStateContext = useContext(GameStateContext);
@@ -21,6 +22,7 @@ export function TransitionToTypingView() {
 
     if (key === 'Escape') {
       gameStateContext.setGameState('ModeSelect');
+      trackEvent('cancel_game');
     }
   }
 

@@ -10,6 +10,7 @@ import { useMilliSecondTimer } from './useMilliSecondTimer';
 import { useTypingEngine } from './useTypingEngine';
 import { Grid, LinearProgress, Stack, styled, Typography } from '@mui/material';
 import { linearProgressClasses } from '@mui/material/LinearProgress';
+import { trackEvent, trackPageView } from './analyticsUtils';
 
 export function TypingView() {
   const [elapsedTime, startTimer, stopTimer, cancelTimer] = useMilliSecondTimer();
@@ -19,10 +20,15 @@ export function TypingView() {
   const gameStateContext = useContext(GameStateContext);
   const notificationRegisterer = useContext(NotificationContext);
 
+  useEffect(() => {
+    trackPageView('/typing', 'TypingView');
+  }, []);
+
   const cancelTyping = () => {
     // これもuseEffect内でやる必要があるかもしれない
     gameStateContext.setGameState('ModeSelect');
     cancelTimer();
+    trackEvent('cancel_game', {});
   }
 
   const handleKeyDown = (e: KeyboardEvent) => {

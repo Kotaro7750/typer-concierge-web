@@ -6,6 +6,7 @@ import { NotificationContext } from './App';
 import { ResultSummaryPane } from './ResultSummaryPane';
 import { get_result } from '../pkg/typer_concierge_web';
 import { Box } from '@mui/material';
+import { trackEvent, trackPageView } from './analyticsUtils';
 
 // | undefinedとしているのは初回には結果はないため
 export function ResultView(): React.JSX.Element {
@@ -30,9 +31,14 @@ export function ResultView(): React.JSX.Element {
 
     if (key === 'Escape') {
       gameStateContext.setGameState('ModeSelect');
+      trackEvent('return_mode_select', {});
       return;
     }
   }
+
+  useEffect(() => {
+    trackPageView('/result', 'ResultView');
+  }, []);
 
   useEffect(() => {
     try {

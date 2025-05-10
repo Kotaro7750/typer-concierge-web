@@ -6,6 +6,7 @@ import { ModeSelectView } from './ModeSelectView';
 import { TransitionToTypingView } from './TransitionToTypingView';
 import { TypingView } from './TypingView';
 import { ResultView } from './ResultView';
+import { GoogleAnalytics } from './GoogleAnalytics';
 import { AppBar, Box, Container, createTheme, CssBaseline, ThemeProvider, Toolbar, Typography } from '@mui/material';
 import { enqueueSnackbar, SnackbarProvider } from 'notistack';
 
@@ -21,6 +22,7 @@ export function App() {
   const [library, libraryOperator] = useLibrary(registerNotification);
   return (
     <Box height={'100vh'} width={'100vw'} >
+      <GoogleAnalytics />
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <SnackbarProvider anchorOrigin={{ vertical: 'top', horizontal: 'right' }} autoHideDuration={5000} />
@@ -40,7 +42,7 @@ export function App() {
         </Box>
         <AppBar position='fixed' color='primary' sx={{ bottom: 0, top: 'auto' }}>
           <Container>
-            <Toolbar variant='dense' sx={{ minHeight: '36px', height: '36px', justifyContent:'end'}}>
+            <Toolbar variant='dense' sx={{ minHeight: '36px', height: '36px', justifyContent: 'end' }}>
               <Typography>
                 Version {__APP_VERSION__}
               </Typography>

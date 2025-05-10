@@ -8,6 +8,7 @@ import { NotificationContext } from './App';
 import { Box, Button, ButtonGroup, CircularProgress, Grid, IconButton, Input, Slider, Stack, Step, StepLabel, Stepper, Tooltip, Typography } from '@mui/material';
 import { Refresh } from '@mui/icons-material';
 import { DictionaryType } from '../pkg/typer_concierge_web';
+import { trackEvent, trackPageView } from './analyticsUtils';
 
 const LAP_LENGTH = 50;
 
@@ -61,6 +62,11 @@ export function ModeSelectView() {
       return;
     }
     gameStateContext.setGameState('TransitionToTyping');
+    trackEvent('start_game', {
+      used_dictionary_type: usedDictionaryType,
+      used_dictionaries: usedDictionaries,
+      key_stroke_count_threshold: keyStrokeCountThreshold,
+    });
   }
 
   const handleKeyDown = (e: KeyboardEvent) => {
@@ -70,6 +76,10 @@ export function ModeSelectView() {
       confirmReady();
     }
   }
+
+  useEffect(() => {
+    trackPageView('/mode_select', 'ModeSelectView');
+  }, []);
 
   useEffect(() => {
     addEventListener('keydown', handleKeyDown);
