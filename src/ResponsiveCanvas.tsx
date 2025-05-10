@@ -1,3 +1,4 @@
+import { Box } from '@mui/material';
 import React, { useEffect, useRef } from 'react';
 
 export function ResponsiveCanvas(props: { sensitivity: any[], draw: (ctx: CanvasRenderingContext2D, canvasWidth: number, canvasHeight: number) => void }): React.JSX.Element {
@@ -36,8 +37,8 @@ export function ResponsiveCanvas(props: { sensitivity: any[], draw: (ctx: Canvas
   }, props.sensitivity);
 
   return (
-    <div className='w-100 h-100 p-0' ref={containerRef} >
+    <Box width={'100%'} height={'100%'} ref={containerRef}>
       <canvas className='d-block w-100 h-100' ref={canvasRef} />
-    </div>
+    </Box>
   );
 }

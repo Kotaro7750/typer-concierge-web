@@ -1,69 +1,121 @@
 import React, { useState } from 'react';
 import { TypingResultStatistics } from './@types/type';
-
-function SubContent(props: { title: string, content: string }): React.JSX.Element {
-  return (
-    <div className='w-100 h-100 d-flex flex-column align-items-center lh-sm'>
-      <div className='text-secondary'>{props.title}</div>
-      <div className='fs-3'>{props.content}</div>
-    </div>
-  );
-}
+import { Box, Card, CardContent, Divider, Grid, Switch, Tooltip, Typography } from '@mui/material';
+import { InfoOutlined } from '@mui/icons-material';
 
 export function ResultSummaryPane(props: { summary: TypingResultStatistics }): React.JSX.Element {
-  const [isWordCountIdeal, setIsWordCountIdeal] = useState<boolean>(false);
+  const [isStrokeCountIdeal, setIsStrokeCountIdeal] = useState<boolean>(false);
 
   const summary = props.summary;
-  const effectiveKeyStroke = isWordCountIdeal ? summary.idealKeyStroke : summary.keyStroke;
+  const effectiveKeyStroke = isStrokeCountIdeal ? summary.idealKeyStroke : summary.keyStroke;
 
-  const wordCount = effectiveKeyStroke.wholeCount;
-  const accuracy = wordCount == 0 ? 0 : effectiveKeyStroke.completelyCorrectCount * 1.0 / wordCount * 100;
+  const strokeCount = effectiveKeyStroke.wholeCount;
+  const accuracy = strokeCount == 0 ? 0 : effectiveKeyStroke.completelyCorrectCount * 1.0 / strokeCount * 100;
 
   // WPMは切り捨て
-  const wpm = summary.totalTimeMs == 0 ? 0 : Math.floor(wordCount * 60000 / summary.totalTimeMs);
+  const wpm = summary.totalTimeMs == 0 ? 0 : Math.floor(strokeCount * 60000 / summary.totalTimeMs);
 
   // WPM x ( 正確率 )^3 の小数点以下切り捨て
-  // 実際のeタイピングはwordCountとしてidealじゃなくて実際の打ったローマ字数を使っている
+  // 実際のeタイピングはstrokeCountとしてidealじゃなくて実際の打ったローマ字数を使っている
   const eTypingScore = Math.floor(wpm * (accuracy / 100) ** 3);
 
-  const WORD_COUNT_IDEAL_HELP = 'オン:タイプ数が最も少なくなるようなローマ字系列の字数で計算します\
-  \nオフ:実際にタイプしたローマ字系列の字数で計算します\
-  \nEx. 「きょう」を「kilyou」と打った場合にはオンにすると4字（kyou）、オフにすると6字打ったことになります\
-  \nオンにすると実際にタイプした文字数よりも少なくなるのでWPM・スコアは低くなります';
+  const STROKE_COUNT_IDEAL_HELP = (
+    <Box>
+      <ul>
+        <li><Typography variant='caption'>オン:タイプ数が最も少なくなるようなローマ字系列のタイプ数で計算します</Typography></li>
+        <li><Typography variant='caption'>オフ:実際にタイプしたローマ字系列のタイプ数で計算します</Typography></li>
+      </ul>
+      <Typography variant='caption'>
+        例： 「きょう」を「kilyou」と打った場合にはオンにすると4タイプ（kyou）、オフにすると6タイプ打ったことになります。
+        オンにすると実際にタイプしたタイプ数よりも少なくなるのでWPM・スコアは低くなります。
+      </Typography>
+    </Box>
+  );
 
+  const SCORE_TOOLTIP_TEXT = "WPMと正確率から計算したスコアです。WPMと正確率がバランスよく高いほどスコアが高くなります。";
+  const WPM_TOOLTIP_TEXT = "1分間あたりの平均タイプ数です。";
+  const ACCURACY_TOOLTIP_TEXT = "タイプ数に対して1つのミスもなくタイプできた割合です。";
+  const WRONG_TYPE_COUNT_TOOLTIP_TEXT = "間違えたタイプ数です。同じ文字に対して何度もミスした場合はその分だけカウントされます。";
 
   return (
-    <div className='d-flex flex-column w-100 h-100 border border-secondary border-3 rounded-3 bg-white'>
+    <Card
+      sx={{
+        maxWidth: 500,
+        margin: '0 auto',
+        borderRadius: 4,
+        boxShadow: 4,
+        p: 2,
+        background: '#fdfdfd',
+      }}
+    >
+      <Box display="flex" alignItems="center" justifyContent="flex-start" mb={2}>
+        <Switch
+          checked={isStrokeCountIdeal}
+          onChange={(_) => setIsStrokeCountIdeal(prev => !prev)}
+          size="small"
+        />
+        <Typography variant="body1">タイプ数として最短を使う</Typography>
+        <Tooltip title={STROKE_COUNT_IDEAL_HELP}>
+          <InfoOutlined fontSize="small" sx={{ ml: 1 }} />
+        </Tooltip>
+      </Box>
 
-      <div className='ms-2'>
-        <div className='form-check form-switch'>
-          <label className='form-check-label'>文字数として最短を使う
-            <input className='form-check-input' type='checkbox' checked={isWordCountIdeal} onChange={() => setIsWordCountIdeal(prev => !prev)} />
-          </label>
-          <i className='bi bi-question-circle' data-bs-toggle='tooltip' data-bs-placement='top' title={WORD_COUNT_IDEAL_HELP} />
-        </div>
-      </div>
+      <CardContent sx={{ textAlign: 'center' }}>
+        <Tooltip title={SCORE_TOOLTIP_TEXT}>
+          <Box>
+            <Typography variant="h6" color="text.secondary">
+              スコア
+            </Typography>
+            <Typography variant="h2" color="primary" sx={{ fontWeight: 'bold', mb: 1 }}>
+              {eTypingScore}
+            </Typography>
+          </Box>
+        </Tooltip>
+        <Typography variant="h5" sx={{ fontFamily: 'monospace', mt: 1 }}>
+          {(summary.totalTimeMs / 1000).toFixed(3)}秒
+        </Typography>
+      </CardContent>
 
-      <div className='flex-grow-1'>
-        <div className='d-flex flex-column w-100 h-100'>
-          <div className='d-flex flex-column w-100 h-100 justify-content-end align-items-center lh-1'>
-            <div className='text-secondary'>スコア</div>
-            <div className='text-primary display-1'>{eTypingScore}</div>
-          </div>
+      <Divider sx={{ my: 2 }} />
 
-          <div className='d-flex flex-column w-100 h-100 justify-content-center align-items-center lh-1'>
-            <div className='text-secondary'><i className='bi bi-stopwatch' /></div>
-            <div className='fs-2'>{(summary.totalTimeMs / 1000).toFixed(3)}秒</div>
-          </div>
-        </div>
-      </div>
-
-      <div className='mt-auto d-flex justify-content-between mb-2'>
-        <SubContent title={'WPM'} content={wpm.toString()} />
-        <SubContent title={'正確性'} content={`${accuracy.toFixed(0)}%`} />
-        <SubContent title={'ミスタイプ'} content={`${effectiveKeyStroke.missedCount}回`} />
-        <SubContent title={'字数'} content={`${wordCount}字`} />
-      </div>
-    </div>
-  )
+      <Grid container spacing={2} justifyContent="space-around">
+        <Grid >
+          <Tooltip title={WPM_TOOLTIP_TEXT}>
+            <Box>
+              <Typography variant="subtitle2" color="text.secondary" align="center">
+                WPM
+              </Typography>
+              <Typography variant="h6" align="center">{wpm.toString()}</Typography>
+            </Box>
+          </Tooltip>
+        </Grid>
+        <Grid >
+          <Tooltip title={ACCURACY_TOOLTIP_TEXT}>
+            <Box>
+              <Typography variant="subtitle2" color="text.secondary" align="center">
+                正確性
+              </Typography>
+              <Typography variant="h6" align="center">{accuracy.toFixed(0)}%</Typography>
+            </Box>
+          </Tooltip>
+        </Grid>
+        <Grid >
+          <Tooltip title={WRONG_TYPE_COUNT_TOOLTIP_TEXT}>
+            <Box>
+              <Typography variant="subtitle2" color="text.secondary" align="center">
+                ミスタイプ
+              </Typography>
+              <Typography variant="h6" align="center">{effectiveKeyStroke.missedCount}回</Typography>
+            </Box>
+          </Tooltip>
+        </Grid>
+        <Grid >
+          <Typography variant="subtitle2" color="text.secondary" align="center">
+            タイプ数
+          </Typography>
+          <Typography variant="h6" align="center">{strokeCount}字</Typography>
+        </Grid>
+      </Grid>
+    </Card>
+  );
 }

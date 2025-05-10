@@ -5,6 +5,7 @@ import { GameStateContext } from './App';
 import { NotificationContext } from './App';
 import { ResultSummaryPane } from './ResultSummaryPane';
 import { get_result } from '../pkg/typer_concierge_web';
+import { Box } from '@mui/material';
 
 // | undefinedとしているのは初回には結果はないため
 export function ResultView(): React.JSX.Element {
@@ -50,10 +51,8 @@ export function ResultView(): React.JSX.Element {
   });
 
   return (
-    <div className='w-100 h-100'>
-      <div className='p-2 h-50 w-40'>
-        <ResultSummaryPane summary={resultStatistics} />
-      </div>
-    </div>
+    <Box width={'100%'} height={'100%'}>
+      <ResultSummaryPane summary={resultStatistics} />
+    </Box>
   );
 }

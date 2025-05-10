@@ -7,7 +7,7 @@ import { TransitionToTypingView } from './TransitionToTypingView';
 import { TypingView } from './TypingView';
 import { ResultView } from './ResultView';
 import { NotificationToast } from './NotificationToast';
-import { createTheme, CssBaseline, ThemeProvider } from '@mui/material';
+import { Box, createTheme, CssBaseline, ThemeProvider } from '@mui/material';
 
 export const GameStateContext = createContext<GameStateContextType>({} as GameStateContextType);
 export const LibraryContext = createContext<{ library: Library, libraryOperator: LibraryOperator }>({} as { library: Library, libraryOperator: LibraryOperator });
@@ -20,7 +20,7 @@ export function App() {
 
   const [library, libraryOperator] = useLibrary(registerNotification);
   return (
-    <div className='vh-100 vw-100'>
+    <Box height={'100vh'} width={'100vw'} >
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <GameStateContext.Provider value={{ gameState: gameState, setGameState: setGameState }}>
@@ -39,7 +39,7 @@ export function App() {
           notifications={notifications}
           unregisterNotification={unregisterNotification} />
       </ThemeProvider>
-    </div>
+    </Box>
   );
 }
 
