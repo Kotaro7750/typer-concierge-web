@@ -1,4 +1,4 @@
-name: Deploy to Cloudflare Pages for production on Tag Push
+name: Deploy to Cloudflare Pages for preview on commit to main
 
 on:
   push:
