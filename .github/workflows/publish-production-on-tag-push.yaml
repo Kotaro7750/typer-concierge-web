@@ -31,6 +31,8 @@ jobs:
 
       - name: Deploy
         uses: cloudflare/wrangler-action@v3
+        env:
+          VITE_GA_MEASUREMENT_ID: ${{ secrets.VITE_GA_MEASUREMENT_ID  }}
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           command: pages deploy ./dist --project-name=typer-concierge --branch=main
