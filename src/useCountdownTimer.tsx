@@ -7,7 +7,7 @@ export function useCountdownTimer(initialCount: number, callback: () => void): [
   const [count, setCount] = useState<number>(initialCount);
 
   useEffect(() => {
-    let timerId: number;
+    let timerId: NodeJS.Timeout;
 
     if (timerState == 'Started') {
       timerId = setInterval(() => {

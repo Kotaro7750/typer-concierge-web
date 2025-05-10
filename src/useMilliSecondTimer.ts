@@ -15,7 +15,7 @@ export function useMilliSecondTimer(): [number, () => void, () => void, () => vo
       setElapsedTime(0);
     }
 
-    let timerId: number;
+    let timerId: NodeJS.Timeout;
 
     if (timerState == 'Started') {
       timerId = setInterval(() => {

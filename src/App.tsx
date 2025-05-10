@@ -6,7 +6,7 @@ import { ModeSelectView } from './ModeSelectView';
 import { TransitionToTypingView } from './TransitionToTypingView';
 import { TypingView } from './TypingView';
 import { ResultView } from './ResultView';
-import { Box, createTheme, CssBaseline, ThemeProvider } from '@mui/material';
+import { AppBar, Box, Container, createTheme, CssBaseline, ThemeProvider, Toolbar, Typography } from '@mui/material';
 import { enqueueSnackbar, SnackbarProvider } from 'notistack';
 
 export const GameStateContext = createContext<GameStateContextType>({} as GameStateContextType);
@@ -24,20 +24,31 @@ export function App() {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <SnackbarProvider anchorOrigin={{ vertical: 'top', horizontal: 'right' }} autoHideDuration={5000} />
-        <GameStateContext.Provider value={{ gameState: gameState, setGameState: setGameState }}>
-          <LibraryContext.Provider value={{ library: library, libraryOperator: libraryOperator }}>
-            <NotificationContext.Provider value={registerNotification}>
-              {
-                gameState === 'ModeSelect' ? <ModeSelectView />
-                  : gameState === 'TransitionToTyping' ? <TransitionToTypingView />
-                    : gameState == 'Typing' ? <TypingView />
-                      : <ResultView />
-              }
-            </NotificationContext.Provider>
-          </LibraryContext.Provider>
-        </GameStateContext.Provider>
-      </ThemeProvider>
-    </Box>
+        <Box height={'calc(100% - 36px)'} width={'100%'}>
+          <GameStateContext.Provider value={{ gameState: gameState, setGameState: setGameState }}>
+            <LibraryContext.Provider value={{ library: library, libraryOperator: libraryOperator }}>
+              <NotificationContext.Provider value={registerNotification}>
+                {
+                  gameState === 'ModeSelect' ? <ModeSelectView />
+                    : gameState === 'TransitionToTyping' ? <TransitionToTypingView />
+                      : gameState == 'Typing' ? <TypingView />
+                        : <ResultView />
+                }
+              </NotificationContext.Provider>
+            </LibraryContext.Provider>
+          </GameStateContext.Provider>
+        </Box>
+        <AppBar position='fixed' color='primary' sx={{ bottom: 0, top: 'auto' }}>
+          <Container>
+            <Toolbar variant='dense' sx={{ minHeight: '36px', height: '36px', justifyContent:'end'}}>
+              <Typography>
+                Version {__APP_VERSION__}
+              </Typography>
+            </Toolbar>
+          </Container>
+        </ AppBar>
+      </ThemeProvider >
+    </Box >
   );
 }
 
