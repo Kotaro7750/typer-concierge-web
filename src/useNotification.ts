@@ -1,47 +1,13 @@
-import { useState } from "react";
+import { EnqueueSnackbar } from "notistack";
 
 export type NotificationSeverity = 'success' | 'warning' | 'error';
-export type Notification = {
-  id: string;
-  title: string;
-  message: string;
-  severity: NotificationSeverity;
-  timeoutId: number;
-}
 
 export type NotificationRegisterer = (title: string, message: string) => void;
 export type NotificationRegistererMap = Map<NotificationSeverity, NotificationRegisterer>;
-export type NotificationUnregisterer = (id: string) => void;
 
-export function useNotification(timeout: number): [Notification[], NotificationRegistererMap, NotificationUnregisterer] {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-
-  const unregister = (id: string) => {
-    setNotifications((prev) => {
-      prev.filter((n) => n.id === id).forEach((n) => {
-        clearTimeout(n.timeoutId);
-      });
-
-      return prev.filter((n) => n.id !== id);
-    });
-
-  }
-
+export function useNotification(enqueueSnackbar: EnqueueSnackbar): NotificationRegistererMap {
   const register = (title: string, message: string, severity: NotificationSeverity) => {
-    const id = self.crypto.randomUUID();
-
-    setNotifications((prev) => {
-      const newNotification: Notification = {
-        id: id,
-        title: title,
-        message: message,
-        severity: severity,
-        timeoutId: setTimeout(() => {
-          unregister(id);
-        }, timeout)
-      };
-      return [...prev, newNotification];
-    });
+    enqueueSnackbar(`${title}: ${message}`, { variant: severity });
   };
 
   const registererMap: NotificationRegistererMap = new Map(
@@ -52,6 +18,6 @@ export function useNotification(timeout: number): [Notification[], NotificationR
     ]
   );
 
-  return [notifications, registererMap, unregister];
+  return registererMap;
 }
 

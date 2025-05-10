@@ -8,7 +8,7 @@ import { NotificationContext } from './App';
 
 import { useMilliSecondTimer } from './useMilliSecondTimer';
 import { useTypingEngine } from './useTypingEngine';
-import { Box, Grid, LinearProgress, Stack, styled, Typography } from '@mui/material';
+import { Grid, LinearProgress, Stack, styled, Typography } from '@mui/material';
 import { linearProgressClasses } from '@mui/material/LinearProgress';
 
 export function TypingView() {
