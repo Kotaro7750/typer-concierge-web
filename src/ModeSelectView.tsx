@@ -82,9 +82,28 @@ export function ModeSelectView() {
 
   const KEY_STROKE_THRESHOLD_TOOLTIP_TEXT = 'ローマ字を何文字打ったらゲームが終了するかというタイプ数です。\n平均的な人だと1分間に150から250タイプできるとされているので、1分間のゲームをしたい場合には200程度にすると良いです。';
 
+  const TITLE = 'TyperConcierge';
+  const DESCRIPTION = 'TyperConciergeはあなたのタイピングの上達をサポートします。';
+
   return (
     <Box width={'100vw'} height={'100vh'} >
-      <Stack width={'100%'} height={'100%'} justifyContent={'center'} direction={'column'}>
+      <Stack width={'100%'} height={'100%'} justifyContent={'center'} direction={'column'} spacing={12} >
+        <Grid container justifyContent={'center'} height={'10%'}>
+          <Stack width={'100%'} height={'100%'} >
+            <Grid container height={'100%'} justifyContent={'center'}>
+              <Box component={'img'} src={'/icon_transparant.png'} height={'100%'} sx={{ objectFit: 'contain' }} />
+              <Grid container alignItems={'center'}>
+                <Typography variant='h3'>{TITLE}</Typography>
+              </Grid>
+            </Grid>
+            <Grid justifyContent={'center'} container>
+              <Typography variant='caption' align='center'>
+                {DESCRIPTION}<br />
+                ※ベータ版のため不具合があるかもしれません。
+              </Typography>
+            </ Grid>
+          </Stack>
+        </Grid>
         <Grid container columns={12} spacing={8} height={'50%'}>
           <Grid size={7} offset={1}>
             {/* 左側のペイン - 辞書選択 */}
