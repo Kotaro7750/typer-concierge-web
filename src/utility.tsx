@@ -1,4 +1,16 @@
 import { CharacterStyleInformation, CharacterStyleInformationForCanvas } from "./@types/type";
+import { Theme } from "@mui/material";
+import Color from "color";
+
+export function typingviewColors(theme: Theme) {
+  const normalTextColor = Color(theme.palette.grey[800]).alpha(1).string();
+  const wrongTextColor = Color(theme.palette.error.main).alpha(1).string();
+  const outRangeTextColor = Color(theme.palette.grey[400]).alpha(1).string();
+  const cursorTextColor = Color(theme.palette.primary.main).alpha(1).string();
+  const borderColor = Color(theme.palette.primary.main).alpha(1).string();
+
+  return [normalTextColor, wrongTextColor, outRangeTextColor, cursorTextColor, borderColor];
+}
 
 // TyperConciergeフォントでは非ASCII文字でもASCII文字と同じ幅になることがある
 export function isMonoWidthFont(c: string) {

@@ -1,10 +1,14 @@
 import React from 'react';
 import { ViewDisplayInfo } from './@types/type';
 import { ResponsiveCanvas } from './ResponsiveCanvas';
-import { constructCharacterStyleInformation, constructCanvasLine, calcLineWindowIndex } from './utility';
+import { constructCharacterStyleInformation, constructCanvasLine, calcLineWindowIndex, typingviewColors } from './utility';
+import { Box, useTheme } from '@mui/material';
 
 export function ViewPane(props: { viewDisplayInfo: ViewDisplayInfo }): React.JSX.Element {
   const viewDisplayInfo = props.viewDisplayInfo;
+
+  const theme = useTheme();
+  const [normalTextColor, wrongTextColor, outRangeTextColor, cursorTextColor, _] = typingviewColors(theme);
 
   const draw = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
     ctx.clearRect(0, 0, width, height);
@@ -31,13 +35,13 @@ export function ViewPane(props: { viewDisplayInfo: ViewDisplayInfo }): React.JSX
     for (let lineIdx = windowTopIndex; lineIdx <= windowBottomIndex; lineIdx++) {
       for (const element of lines[lineIdx]) {
         if (element.isWrong) {
-          ctx.fillStyle = 'rgba(221, 80, 64, 1)';
+          ctx.fillStyle = wrongTextColor;
         } else if (element.cursorRelative == 'before' || element.isOutRange) {
-          ctx.fillStyle = 'rgba(206, 222, 243, 1)';
+          ctx.fillStyle = outRangeTextColor;
         } else if (element.cursorRelative == 'onCursor') {
-          ctx.fillStyle = 'rgba(88, 99, 248, 1)';
+          ctx.fillStyle = cursorTextColor;
         } else {
-          ctx.fillStyle = 'rgba(15, 37, 64, 1)';
+          ctx.fillStyle = normalTextColor;
         }
 
         if (element.explicitSpace) {
@@ -52,15 +56,15 @@ export function ViewPane(props: { viewDisplayInfo: ViewDisplayInfo }): React.JSX
       ctx.font = '18px TyperConciergeFont';
       ctx.textBaseline = 'top';
       ctx.textAlign = 'center';
-      ctx.fillStyle = 'rgba(15, 37, 64, 1)';
+      ctx.fillStyle = normalTextColor;
       ctx.fillText(`︾${lines.length - (windowBottomIndex + 1)}行`, Math.floor(width / 2), lineWindowHeight);
     }
 
   };
 
   return (
-    <div className='w-100 h-100 p-2 border border-secondary border-3 rounded-3 bg-white' >
+    <Box height={'100%'} width={'100%'} border={2} borderRadius={2} borderColor={'primary.main'} padding={2}>
       <ResponsiveCanvas sensitivity={[viewDisplayInfo]} draw={draw} />
-    </div>
+    </Box>
   );
 }

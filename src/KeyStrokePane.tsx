@@ -3,7 +3,8 @@ import { KeyStrokeDisplayInfo, CharacterStyleInformation, CharacterStyleInformat
 
 import { ResponsiveCanvas } from './ResponsiveCanvas';
 
-import { constructCanvasLine, constructCharacterStyleInformation, calcLineWindowIndex, roundRect } from './utility';
+import { constructCanvasLine, constructCharacterStyleInformation, calcLineWindowIndex, roundRect, typingviewColors } from './utility';
+import { Box, useTheme } from '@mui/material';
 
 function splitByLap(charStyleInfos: CharacterStyleInformation[], minCursorPosition: number, lapEndPositions: number[], lapEndTimes: number[])
   : [CharacterStyleInformation[][], number[], number, number] {
@@ -55,6 +56,9 @@ function splitByLap(charStyleInfos: CharacterStyleInformation[], minCursorPositi
 export function KeyStrokePane(props: { keyStrokeDisplayInfo: KeyStrokeDisplayInfo }) {
   const { keyStroke, currentCursorPosition, missedPositions, lapEndTime, lapEndPositions } = props.keyStrokeDisplayInfo;
 
+  const theme = useTheme();
+  const [normalTextColor, wrongTextColor, outRangeTextColor, cursorTextColor, borderColor] = typingviewColors(theme);
+
   const draw = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
     const [charStyleInfos, minCursorPosition] = constructCharacterStyleInformation(keyStroke, [currentCursorPosition], missedPositions, keyStroke.length - 1);
     const [lapCharStyleInfos, lapTimes, currentLapIndex, inLapMinCursorPosition] = splitByLap(charStyleInfos, minCursorPosition, lapEndPositions, lapEndTime);
@@ -98,16 +102,17 @@ export function KeyStrokePane(props: { keyStrokeDisplayInfo: KeyStrokeDisplayInf
 
     const [windowTopIndex, windowBottomIndex] = calcLineWindowIndex(lines.length, lineWindowCapacity, cursorLineIndex);
 
+
     for (let lineIdx = windowTopIndex; lineIdx <= windowBottomIndex; lineIdx++) {
       for (const element of lines[lineIdx]) {
         if (element.isWrong) {
-          ctx.fillStyle = 'rgba(221, 80, 64, 1)';
+          ctx.fillStyle = wrongTextColor;
         } else if (element.cursorRelative == 'before' || element.isOutRange) {
-          ctx.fillStyle = 'rgba(206, 222, 243, 1)';
+          ctx.fillStyle = outRangeTextColor;
         } else if (element.cursorRelative == 'onCursor') {
-          ctx.fillStyle = 'rgba(88, 99, 248, 1)';
+          ctx.fillStyle = cursorTextColor;
         } else {
-          ctx.fillStyle = 'rgba(15, 37, 64, 1)';
+          ctx.fillStyle = normalTextColor;
         }
 
         if (element.explicitSpace) {
@@ -127,14 +132,14 @@ export function KeyStrokePane(props: { keyStrokeDisplayInfo: KeyStrokeDisplayInf
       const rectangleHeight = Math.floor(characterHeight - 2 + (Math.min(lineCount, windowBottomIndex - lineIdx + 1) - 1) * yDelta);
       const rectangleUpperLeftY = y + 2;
 
-      ctx.strokeStyle = 'rgba(206, 222, 243, 1)';
+      ctx.strokeStyle = borderColor;
       ctx.lineWidth = 2;
       roundRect(ctx, rectangleUpperLeftX, rectangleUpperLeftY, rectangleWidth, rectangleHeight, 3);
 
       ctx.font = '18px TyperConciergeFont';
       ctx.textBaseline = 'middle';
       ctx.textAlign = 'center';
-      ctx.fillStyle = 'rgba(15, 37, 64, 1)';
+      ctx.fillStyle = normalTextColor;
 
       const lapTimeText = lapTimes[lapIndex] == 0 ? '' : `${(lapTimes[lapIndex] / 1000).toFixed(3)}秒`;
       ctx.fillText(lapTimeText, rectangleUpperLeftX + Math.floor(rectangleWidth / 2), rectangleUpperLeftY + Math.floor(rectangleHeight / 2));
@@ -147,15 +152,15 @@ export function KeyStrokePane(props: { keyStrokeDisplayInfo: KeyStrokeDisplayInf
       ctx.font = '18px TyperConciergeFont';
       ctx.textBaseline = 'top';
       ctx.textAlign = 'center';
-      ctx.fillStyle = 'rgba(15, 37, 64, 1)';
+      ctx.fillStyle = normalTextColor;
       ctx.fillText(`︾${lines.length - (windowBottomIndex + 1)}行`, Math.floor(width / 2), lineWindowHeight);
     }
   };
 
 
   return (
-    <div className='w-100 h-100 p-2 border border-secondary border-3 rounded-3 bg-white'>
+    <Box height={'100%'} width={'100%'} border={2} borderRadius={2} borderColor={'primary.main'} padding={2}>
       <ResponsiveCanvas sensitivity={[props.keyStrokeDisplayInfo]} draw={draw} />
-    </div>
+    </Box>
   );
 }

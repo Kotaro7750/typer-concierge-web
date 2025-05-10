@@ -8,6 +8,8 @@ import { NotificationContext } from './App';
 
 import { useMilliSecondTimer } from './useMilliSecondTimer';
 import { useTypingEngine } from './useTypingEngine';
+import { Box, Grid, LinearProgress, Stack, styled, Typography } from '@mui/material';
+import { linearProgressClasses } from '@mui/material/LinearProgress';
 
 export function TypingView() {
   const [elapsedTime, startTimer, stopTimer, cancelTimer] = useMilliSecondTimer();
@@ -74,27 +76,48 @@ export function TypingView() {
   const progressPercentage = keyStrokeDisplayInfo.progress * 100;
 
   return (
-    <div className='d-flex flex-column h-100 w-100'>
-      <div className='d-flex justify-content-between w-100 px-4' style={{ flexBasis: 'min(10%, 67.5px)' }}>
-        <div className='d-flex align-items-center h-100' style={{ flexBasis: '35%' }}>
-          <div className='progress w-100 h-50'>
-            <div className='progress-bar progress-bar-striped progress-bar-animated bg-primary' role='progressbar' style={{ width: `${progressPercentage}%` }} aria-valuenow={progressPercentage} aria-valuemin={0} aria-valuemax={100}>
-              {progressPercentage.toFixed(1)}%
-            </div>
-          </div>
-        </div>
-        <div className='d-flex align-items-center'>
-          <TimerPane elapsedTimeMilli={elapsedTime} />
-        </div>
-      </div>
+    <Grid container justifyContent={'center'} width={'100%'} height={'100%'} >
+      <Grid width={'95%'}>
+        <Stack width={'100%'} height={'100%'} spacing={2}>
+          <Grid container justifyContent={'space-between'} alignItems={'center'} height={'5%'}>
+            <Grid size={6}>
+              <Grid container alignItems={'center'} width={'100%'} justifyContent={'space-around'} spacing={2}>
+                <Grid size={'grow'} >
+                  <Grid container width={'100%'} alignItems={'center'} justifyContent={'center'}>
+                    <Grid width={'100%'} height={20}>
+                      <BorderLinearProgress variant={'determinate'} value={progressPercentage} />
+                    </Grid>
+                  </Grid>
+                </Grid>
+                <Grid size={2}>
+                  <Typography variant='h5'>{progressPercentage.toFixed(1)}%</Typography>
+                </Grid>
+              </Grid>
+            </Grid>
+            <Grid>
+              <Grid container alignItems={'center'}>
+                <TimerPane elapsedTimeMilli={elapsedTime} />
+              </Grid>
+            </Grid>
+          </Grid>
 
-      <div className='px-4 pb-4 overflow-hidden' style={{ flexBasis: '40%', flexGrow: 1 }}>
-        <ViewPane viewDisplayInfo={viewDisplayInfo} />
-      </div>
+          <Grid height={'45%'}>
+            <ViewPane viewDisplayInfo={viewDisplayInfo} />
+          </Grid>
 
-      <div className='px-4 pb-4 overflow-hidden' style={{ flexBasis: '40%', flexGrow: 1 }}>
-        <KeyStrokePane keyStrokeDisplayInfo={keyStrokeDisplayInfo} />
-      </div>
-    </div>
+          <Grid height={'45%'}>
+            <KeyStrokePane keyStrokeDisplayInfo={keyStrokeDisplayInfo} />
+          </Grid>
+        </Stack>
+      </Grid>
+    </Grid>
   );
 }
+
+const BorderLinearProgress = styled(LinearProgress)((_) => ({
+  height: '100%',
+  borderRadius: 5,
+  [`& .${linearProgressClasses.bar}`]: {
+    borderRadius: 5,
+  },
+}));
