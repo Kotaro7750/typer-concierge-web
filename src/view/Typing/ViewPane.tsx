@@ -1,7 +1,7 @@
 import React from 'react';
 import { ViewDisplayInfo } from '@/@types/type';
 import { ResponsiveCanvas } from '@/component/ResponsiveCanvas';
-import { constructCharacterStyleInformation, constructCanvasLine, calcLineWindowIndex, typingviewColors } from './utility';
+import { constructCharacterStyleInformation, constructCanvasLine, calcLineWindowIndex, typingviewColors, VIEW_CHARACTERS_PER_LINE, REMAIN_LAP_INDICATOR_SCALE, getActualCharacterHeight } from './utility';
 import { Box, useTheme } from '@mui/material';
 
 export function ViewPane(props: { viewDisplayInfo: ViewDisplayInfo }): React.JSX.Element {
@@ -13,22 +13,23 @@ export function ViewPane(props: { viewDisplayInfo: ViewDisplayInfo }): React.JSX
   const draw = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
     ctx.clearRect(0, 0, width, height);
 
-    const doubleCharacterWidth = Math.min(Math.floor(width / 30), 40);
+    const doubleCharacterWidth = Math.floor(width / VIEW_CHARACTERS_PER_LINE);
 
     ctx.font = `${doubleCharacterWidth}px TyperConciergeFont`;
     ctx.textBaseline = 'top';
     ctx.textAlign = 'start';
 
-    const measure = ctx.measureText('あ');
-    const characterHeight = measure.actualBoundingBoxDescent - measure.actualBoundingBoxAscent;
+    const characterHeight = getActualCharacterHeight(ctx);
+
+    const remainingLapIndicatorHeight = Math.floor(characterHeight * REMAIN_LAP_INDICATOR_SCALE);
+    const lineWindowHeight = height - remainingLapIndicatorHeight;
 
     const yDelta = Math.ceil(characterHeight * 1.5);
-    const lineWindowHeight = height - 20;
+    const lineWindowCapacity = Math.floor(lineWindowHeight / yDelta);
 
     const [charStyleInfos, minCursorPosition] = constructCharacterStyleInformation(viewDisplayInfo.view, viewDisplayInfo.currentCursorPositions, viewDisplayInfo.missedPositions, viewDisplayInfo.lastPosition);
     const [lines, cursorLineIndex] = constructCanvasLine(charStyleInfos, minCursorPosition, width, doubleCharacterWidth);
 
-    const lineWindowCapacity = Math.floor(lineWindowHeight / yDelta);
 
     const [windowTopIndex, windowBottomIndex] = calcLineWindowIndex(lines.length, lineWindowCapacity, cursorLineIndex);
 
@@ -52,8 +53,10 @@ export function ViewPane(props: { viewDisplayInfo: ViewDisplayInfo }): React.JSX
       }
     }
 
+    const remainingLapIndicatorFontSize = Math.floor(doubleCharacterWidth * REMAIN_LAP_INDICATOR_SCALE);
+
     if ((windowBottomIndex + 1) < lines.length) {
-      ctx.font = '18px TyperConciergeFont';
+      ctx.font = `${remainingLapIndicatorFontSize}px TyperConciergeFont`;
       ctx.textBaseline = 'top';
       ctx.textAlign = 'center';
       ctx.fillStyle = normalTextColor;

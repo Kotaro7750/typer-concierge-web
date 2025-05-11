@@ -2,6 +2,12 @@ import { CharacterStyleInformation, CharacterStyleInformationForCanvas } from "@
 import { Theme } from "@mui/material";
 import Color from "color";
 
+export const VIEW_CHARACTERS_PER_LINE = 40;
+export const KEY_STROKES_PER_LAP = 50;
+// Size scale for the remaining lap indicator related to view charactor
+export const REMAIN_LAP_INDICATOR_SCALE = 0.5;
+
+
 export function typingviewColors(theme: Theme) {
   const normalTextColor = Color(theme.palette.grey[800]).alpha(1).string();
   const wrongTextColor = Color(theme.palette.error.main).alpha(1).string();
@@ -10,6 +16,12 @@ export function typingviewColors(theme: Theme) {
   const borderColor = Color(theme.palette.primary.main).alpha(1).string();
 
   return [normalTextColor, wrongTextColor, outRangeTextColor, cursorTextColor, borderColor];
+}
+
+// Get actual character height in passed canvas 2D context
+export function getActualCharacterHeight(ctx: CanvasRenderingContext2D): number {
+  const measure = ctx.measureText('あ');
+  return measure.actualBoundingBoxDescent - measure.actualBoundingBoxAscent;
 }
 
 // TyperConciergeフォントでは非ASCII文字でもASCII文字と同じ幅になることがある

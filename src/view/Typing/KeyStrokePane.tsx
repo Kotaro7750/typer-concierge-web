@@ -3,7 +3,7 @@ import { KeyStrokeDisplayInfo, CharacterStyleInformation, CharacterStyleInformat
 
 import { ResponsiveCanvas } from '@/component/ResponsiveCanvas';
 
-import { constructCanvasLine, constructCharacterStyleInformation, calcLineWindowIndex, roundRect, typingviewColors } from './utility';
+import { constructCanvasLine, constructCharacterStyleInformation, calcLineWindowIndex, roundRect, typingviewColors, KEY_STROKES_PER_LAP, REMAIN_LAP_INDICATOR_SCALE, getActualCharacterHeight } from './utility';
 import { Box, useTheme } from '@mui/material';
 
 function splitByLap(charStyleInfos: CharacterStyleInformation[], minCursorPosition: number, lapEndPositions: number[], lapEndTimes: number[])
@@ -65,19 +65,21 @@ export function KeyStrokePane(props: { keyStrokeDisplayInfo: KeyStrokeDisplayInf
 
     ctx.clearRect(0, 0, width, height);
 
+    // Remaining area is for lap time
     const lineWindowWidth = Math.floor(width * 0.8);
 
-    const doubleCharacterWidth = Math.min(Math.floor(lineWindowWidth / 30), 40);
+    // Because key stroke characters are all single width, 2 is multiplied
+    // 10 is added for margin
+    const doubleCharacterWidth = Math.floor(lineWindowWidth / (KEY_STROKES_PER_LAP + 10) * 2);
 
     ctx.font = `${doubleCharacterWidth}px TyperConciergeFont`;
     ctx.textBaseline = 'top';
     ctx.textAlign = 'start';
 
-    const measure = ctx.measureText('あ');
-    const characterHeight = measure.actualBoundingBoxDescent - measure.actualBoundingBoxAscent;
+    const characterHeight = getActualCharacterHeight(ctx);
 
-    const yDelta = Math.ceil(characterHeight * 1.5);
-    const lineWindowHeight = height - 20;
+    const remainingLapIndicatorHeight = Math.floor(characterHeight * REMAIN_LAP_INDICATOR_SCALE);
+    const lineWindowHeight = height - remainingLapIndicatorHeight;
 
     const lines: CharacterStyleInformationForCanvas[][] = [];
     // [行の所属するラップのインデックス, 行を含めてそのラップには残り何行あるか]
@@ -98,10 +100,11 @@ export function KeyStrokePane(props: { keyStrokeDisplayInfo: KeyStrokeDisplayInf
       lines.push(...inLapLines);
     });
 
+    // 2 is multiplied for margin
+    const yDelta = Math.ceil(characterHeight * 2);
     const lineWindowCapacity = Math.floor(lineWindowHeight / yDelta);
 
     const [windowTopIndex, windowBottomIndex] = calcLineWindowIndex(lines.length, lineWindowCapacity, cursorLineIndex);
-
 
     for (let lineIdx = windowTopIndex; lineIdx <= windowBottomIndex; lineIdx++) {
       for (const element of lines[lineIdx]) {
@@ -123,20 +126,31 @@ export function KeyStrokePane(props: { keyStrokeDisplayInfo: KeyStrokeDisplayInf
       }
     }
 
+    // Draw lap time rectangles
+    const lapTimeAreaWidth = width - lineWindowWidth;
+    const xMarginForLapTimeRectangle = Math.floor(lapTimeAreaWidth * 0.1);
     let y = 0;
     for (let lineIdx = windowTopIndex; lineIdx <= windowBottomIndex;) {
       const [lapIndex, lineCount] = lapOfLines[lineIdx];
 
-      const rectangleWidth = Math.floor((width - lineWindowWidth) * 0.8);
-      const rectangleUpperLeftX = lineWindowWidth + Math.floor((width - lineWindowWidth) * 0.1);
-      const rectangleHeight = Math.floor(characterHeight - 2 + (Math.min(lineCount, windowBottomIndex - lineIdx + 1) - 1) * yDelta);
-      const rectangleUpperLeftY = y + 2;
+      const rectangleBorderWidth = 2;
+
+      const rectangleWidth = Math.floor(lapTimeAreaWidth * 0.8);
+      const rectangleUpperLeftX = lineWindowWidth + xMarginForLapTimeRectangle;
+      const rectangleUpperLeftY = y + rectangleBorderWidth;
+
+      // Designate gap between rectangles in 0 to 1. 1 means no gap.
+      const rectangleGapFactor = 0.8;
+      // How many lines are lap rectangle cover
+      // TODO: There may be no meaning not to use just lineCount
+      const rectangleHeightMultiplier = Math.min(lineCount, windowBottomIndex - lineIdx + 1);
+      const rectangleHeight = Math.floor(yDelta * rectangleGapFactor - rectangleBorderWidth + (rectangleHeightMultiplier - 1) * yDelta);
 
       ctx.strokeStyle = borderColor;
-      ctx.lineWidth = 2;
+      ctx.lineWidth = rectangleBorderWidth;
       roundRect(ctx, rectangleUpperLeftX, rectangleUpperLeftY, rectangleWidth, rectangleHeight, 3);
 
-      ctx.font = '18px TyperConciergeFont';
+      ctx.font = `${doubleCharacterWidth}px TyperConciergeFont`;
       ctx.textBaseline = 'middle';
       ctx.textAlign = 'center';
       ctx.fillStyle = normalTextColor;
@@ -148,8 +162,11 @@ export function KeyStrokePane(props: { keyStrokeDisplayInfo: KeyStrokeDisplayInf
       lineIdx += lineCount;
     }
 
+    // Draw remaining lap indicator
+    const remainingLapIndicatorFontSize = Math.floor(doubleCharacterWidth * REMAIN_LAP_INDICATOR_SCALE);
+
     if ((windowBottomIndex + 1) < lines.length) {
-      ctx.font = '18px TyperConciergeFont';
+      ctx.font = `${remainingLapIndicatorFontSize}px TyperConciergeFont`;
       ctx.textBaseline = 'top';
       ctx.textAlign = 'center';
       ctx.fillStyle = normalTextColor;

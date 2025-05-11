@@ -114,7 +114,11 @@ export function TypingView() {
             </Grid>
 
             <Grid sx={{ flex: 4.5, paddingBottom: 2 }}>
-              <KeyStrokePane keyStrokeDisplayInfo={keyStrokeDisplayInfo} />
+              <Grid container justifyContent={'start'} width={'100%'} height={'100%'} spacing={2}>
+                <Grid size={9} height={'100%'}>
+                  <KeyStrokePane keyStrokeDisplayInfo={keyStrokeDisplayInfo} />
+                </Grid>
+              </Grid>
             </Grid>
           </Stack>
         </Grid>
