@@ -7,7 +7,7 @@ import { ResultSummaryPane } from './ResultSummaryPane';
 import { get_result } from 'pkg/typer_concierge_web';
 import { Box } from '@mui/material';
 import { trackEvent, trackPageView } from '@/util/analyticsUtils';
-import { FixedFullScreenLayout } from '@/layout/FixedFullScreen';
+import { ScrollableLayout } from '@/layout/Scrollable';
 
 // | undefinedとしているのは初回には結果はないため
 export function ResultView(): React.JSX.Element {
@@ -58,10 +58,10 @@ export function ResultView(): React.JSX.Element {
   });
 
   return (
-    <FixedFullScreenLayout>
-      <Box width={'100%'} height={'100%'}>
+    <ScrollableLayout>
+      <Box width={'100%'} >
         <ResultSummaryPane summary={resultStatistics} />
       </Box>
-    </FixedFullScreenLayout>
+    </ScrollableLayout>
   );
 }
