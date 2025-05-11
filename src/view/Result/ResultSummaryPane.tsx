@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { TypingResultStatistics } from '@/@types/type';
-import { Box, Card, CardContent, Divider, Grid, Switch, Tooltip, Typography } from '@mui/material';
+import { Box, CardContent, Divider, Grid, Switch, Tooltip, Typography } from '@mui/material';
 import { InfoOutlined } from '@mui/icons-material';
+import { TileCard } from './TileCard';
 
 export function ResultSummaryPane(props: { summary: TypingResultStatistics }): React.JSX.Element {
   const [isStrokeCountIdeal, setIsStrokeCountIdeal] = useState<boolean>(false);
@@ -38,84 +39,83 @@ export function ResultSummaryPane(props: { summary: TypingResultStatistics }): R
   const WRONG_TYPE_COUNT_TOOLTIP_TEXT = "間違えたタイプ数です。同じ文字に対して何度もミスした場合はその分だけカウントされます。";
 
   return (
-    <Card
-      sx={{
-        maxWidth: 500,
-        margin: '0 auto',
-        borderRadius: 4,
-        boxShadow: 4,
-        p: 2,
-        background: '#fdfdfd',
-      }}
-    >
-      <Box display="flex" alignItems="center" justifyContent="flex-start" mb={2}>
-        <Switch
-          checked={isStrokeCountIdeal}
-          onChange={(_) => setIsStrokeCountIdeal(prev => !prev)}
-          size="small"
-        />
-        <Typography variant="body1">タイプ数として最短を使う</Typography>
-        <Tooltip title={STROKE_COUNT_IDEAL_HELP}>
-          <InfoOutlined fontSize="small" sx={{ ml: 1 }} />
-        </Tooltip>
-      </Box>
-
-      <CardContent sx={{ textAlign: 'center' }}>
-        <Tooltip title={SCORE_TOOLTIP_TEXT}>
-          <Box>
-            <Typography variant="h6" color="text.secondary">
-              スコア
-            </Typography>
-            <Typography variant="h2" color="primary" sx={{ fontWeight: 'bold', mb: 1 }}>
-              {eTypingScore}
-            </Typography>
+    <TileCard >
+      <Grid container justifyContent={'space-between'} direction={'column'} width={'100%'} height={'100%'}>
+        <Grid>
+          <Box display="flex" alignItems="center" justifyContent="flex-start" mb={2}>
+            <Switch
+              checked={isStrokeCountIdeal}
+              onChange={(_) => setIsStrokeCountIdeal(prev => !prev)}
+              size="small"
+            />
+            <Typography variant="body1">タイプ数として最短を使う</Typography>
+            <Tooltip title={STROKE_COUNT_IDEAL_HELP}>
+              <InfoOutlined fontSize="small" sx={{ ml: 1 }} />
+            </Tooltip>
           </Box>
-        </Tooltip>
-        <Typography variant="h5" sx={{ fontFamily: 'monospace', mt: 1 }}>
-          {(summary.totalTimeMs / 1000).toFixed(3)}秒
-        </Typography>
-      </CardContent>
+        </Grid>
 
-      <Divider sx={{ my: 2 }} />
+        <Grid>
+          <CardContent sx={{ textAlign: 'center' }}>
+            <Tooltip title={SCORE_TOOLTIP_TEXT}>
+              <Box>
+                <Typography variant="h6" color="text.secondary">
+                  スコア
+                </Typography>
+                <Typography variant="h2" color="primary" sx={{ fontWeight: 'bold', mb: 1 }}>
+                  {eTypingScore}
+                </Typography>
+              </Box>
+            </Tooltip>
+            <Typography variant="h5" sx={{ fontFamily: 'monospace', mt: 1 }}>
+              {(summary.totalTimeMs / 1000).toFixed(3)}秒
+            </Typography>
+          </CardContent>
+        </Grid>
 
-      <Grid container spacing={2} justifyContent="space-around">
-        <Grid >
-          <Tooltip title={WPM_TOOLTIP_TEXT}>
-            <Box>
+        <Grid>
+          <Divider sx={{ my: 2 }} />
+
+          <Grid container spacing={2} justifyContent="space-around">
+            <Grid >
+              <Tooltip title={WPM_TOOLTIP_TEXT}>
+                <Box>
+                  <Typography variant="subtitle2" color="text.secondary" align="center">
+                    WPM
+                  </Typography>
+                  <Typography variant="h6" align="center">{wpm.toString()}</Typography>
+                </Box>
+              </Tooltip>
+            </Grid>
+            <Grid >
+              <Tooltip title={ACCURACY_TOOLTIP_TEXT}>
+                <Box>
+                  <Typography variant="subtitle2" color="text.secondary" align="center">
+                    正確性
+                  </Typography>
+                  <Typography variant="h6" align="center">{accuracy.toFixed(0)}%</Typography>
+                </Box>
+              </Tooltip>
+            </Grid>
+            <Grid >
+              <Tooltip title={WRONG_TYPE_COUNT_TOOLTIP_TEXT}>
+                <Box>
+                  <Typography variant="subtitle2" color="text.secondary" align="center">
+                    ミスタイプ
+                  </Typography>
+                  <Typography variant="h6" align="center">{effectiveKeyStroke.missedCount}回</Typography>
+                </Box>
+              </Tooltip>
+            </Grid>
+            <Grid >
               <Typography variant="subtitle2" color="text.secondary" align="center">
-                WPM
+                タイプ数
               </Typography>
-              <Typography variant="h6" align="center">{wpm.toString()}</Typography>
-            </Box>
-          </Tooltip>
-        </Grid>
-        <Grid >
-          <Tooltip title={ACCURACY_TOOLTIP_TEXT}>
-            <Box>
-              <Typography variant="subtitle2" color="text.secondary" align="center">
-                正確性
-              </Typography>
-              <Typography variant="h6" align="center">{accuracy.toFixed(0)}%</Typography>
-            </Box>
-          </Tooltip>
-        </Grid>
-        <Grid >
-          <Tooltip title={WRONG_TYPE_COUNT_TOOLTIP_TEXT}>
-            <Box>
-              <Typography variant="subtitle2" color="text.secondary" align="center">
-                ミスタイプ
-              </Typography>
-              <Typography variant="h6" align="center">{effectiveKeyStroke.missedCount}回</Typography>
-            </Box>
-          </Tooltip>
-        </Grid>
-        <Grid >
-          <Typography variant="subtitle2" color="text.secondary" align="center">
-            タイプ数
-          </Typography>
-          <Typography variant="h6" align="center">{strokeCount}字</Typography>
+              <Typography variant="h6" align="center">{strokeCount}字</Typography>
+            </Grid>
+          </Grid>
         </Grid>
       </Grid>
-    </Card>
+    </TileCard >
   );
 }

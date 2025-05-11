@@ -5,9 +5,11 @@ import { GameStateContext } from '@/App';
 import { NotificationContext } from '@/App';
 import { ResultSummaryPane } from './ResultSummaryPane';
 import { get_result } from 'pkg/typer_concierge_web';
-import { Box } from '@mui/material';
+import { Grid, Stack } from '@mui/material';
 import { trackEvent, trackPageView } from '@/util/analyticsUtils';
 import { ScrollableLayout } from '@/layout/Scrollable';
+import { ActionAfterFinishPane } from './GameActionPane';
+import { ShareResultPane } from './ShareResult';
 
 // | undefinedとしているのは初回には結果はないため
 export function ResultView(): React.JSX.Element {
@@ -27,12 +29,27 @@ export function ResultView(): React.JSX.Element {
     totalTimeMs: 0
   });
 
+
+  const backToModeSelect = () => {
+    gameStateContext.setGameState('ModeSelect');
+    trackEvent('return_mode_select', {});
+  };
+
+  const retry = () => {
+    notificationRegisterer.get('warning')?.("未実装", "リトライ機能は未実装です");
+  };
+
+
   const handleKeyDown = (e: KeyboardEvent) => {
     const key = e.key;
 
     if (key === 'Escape') {
-      gameStateContext.setGameState('ModeSelect');
-      trackEvent('return_mode_select', {});
+      backToModeSelect();
+      return;
+    }
+
+    if (key === 'Enter') {
+      retry();
       return;
     }
   }
@@ -59,9 +76,19 @@ export function ResultView(): React.JSX.Element {
 
   return (
     <ScrollableLayout>
-      <Box width={'100%'} >
-        <ResultSummaryPane summary={resultStatistics} />
-      </Box>
+      <Grid container width={'100%'} spacing={2} padding={2} >
+        <Grid size={2} >
+          <Stack spacing={2}>
+            <ActionAfterFinishPane backToModeSelect={backToModeSelect} retry={retry} />
+            <ShareResultPane />
+          </Stack>
+        </Grid>
+        <Grid size={3} >
+          <ResultSummaryPane summary={resultStatistics} />
+        </Grid>
+      </Grid>
     </ScrollableLayout>
   );
 }
+
+
