@@ -3,14 +3,15 @@ import { TimerPane } from './TimerPane';
 import { ViewPane } from './ViewPane';
 import { KeyStrokePane } from './KeyStrokePane';
 
-import { GameStateContext } from './App';
-import { NotificationContext } from './App';
+import { GameStateContext } from '@/App';
+import { NotificationContext } from '@/App';
 
-import { useMilliSecondTimer } from './useMilliSecondTimer';
-import { useTypingEngine } from './useTypingEngine';
+import { useMilliSecondTimer } from '@/hook/useMilliSecondTimer';
+import { useTypingEngine } from '@/hook/useTypingEngine';
 import { Grid, LinearProgress, Stack, styled, Typography } from '@mui/material';
 import { linearProgressClasses } from '@mui/material/LinearProgress';
-import { trackEvent, trackPageView } from './analyticsUtils';
+import { trackEvent, trackPageView } from '@/util/analyticsUtils';
+import { FixedFullScreenLayout } from '@/layout/FixedFullScreen';
 
 export function TypingView() {
   const [elapsedTime, startTimer, stopTimer, cancelTimer] = useMilliSecondTimer();
@@ -82,41 +83,43 @@ export function TypingView() {
   const progressPercentage = keyStrokeDisplayInfo.progress * 100;
 
   return (
-    <Grid container justifyContent={'center'} width={'100%'} height={'100%'} >
-      <Grid width={'95%'} height={'100%'}>
-        <Stack width={'100%'} height={'100%'} spacing={2}>
-          <Grid container justifyContent={'space-between'} alignItems={'center'} sx={{ flex: 1 }}>
-            <Grid size={6}>
-              <Grid container alignItems={'center'} width={'100%'} justifyContent={'space-around'} spacing={2}>
-                <Grid size={'grow'} >
-                  <Grid container width={'100%'} alignItems={'center'} justifyContent={'center'}>
-                    <Grid width={'100%'} height={20}>
-                      <BorderLinearProgress variant={'determinate'} value={progressPercentage} />
+    <FixedFullScreenLayout>
+      <Grid container justifyContent={'center'} width={'100%'} height={'100%'} >
+        <Grid width={'95%'} height={'100%'}>
+          <Stack width={'100%'} height={'100%'} spacing={2}>
+            <Grid container justifyContent={'space-between'} alignItems={'center'} sx={{ flex: 1 }}>
+              <Grid size={6}>
+                <Grid container alignItems={'center'} width={'100%'} justifyContent={'space-around'} spacing={2}>
+                  <Grid size={'grow'} >
+                    <Grid container width={'100%'} alignItems={'center'} justifyContent={'center'}>
+                      <Grid width={'100%'} height={20}>
+                        <BorderLinearProgress variant={'determinate'} value={progressPercentage} />
+                      </Grid>
                     </Grid>
                   </Grid>
+                  <Grid size={2}>
+                    <Typography variant='h5'>{progressPercentage.toFixed(1)}%</Typography>
+                  </Grid>
                 </Grid>
-                <Grid size={2}>
-                  <Typography variant='h5'>{progressPercentage.toFixed(1)}%</Typography>
+              </Grid>
+              <Grid>
+                <Grid container alignItems={'center'}>
+                  <TimerPane elapsedTimeMilli={elapsedTime} />
                 </Grid>
               </Grid>
             </Grid>
-            <Grid>
-              <Grid container alignItems={'center'}>
-                <TimerPane elapsedTimeMilli={elapsedTime} />
-              </Grid>
+
+            <Grid sx={{ flex: 4.5, }}>
+              <ViewPane viewDisplayInfo={viewDisplayInfo} />
             </Grid>
-          </Grid>
 
-          <Grid sx={{ flex: 4.5, }}>
-            <ViewPane viewDisplayInfo={viewDisplayInfo} />
-          </Grid>
-
-          <Grid sx={{ flex: 4.5, paddingBottom:  2 }}>
-            <KeyStrokePane keyStrokeDisplayInfo={keyStrokeDisplayInfo} />
-          </Grid>
-        </Stack>
+            <Grid sx={{ flex: 4.5, paddingBottom: 2 }}>
+              <KeyStrokePane keyStrokeDisplayInfo={keyStrokeDisplayInfo} />
+            </Grid>
+          </Stack>
+        </Grid>
       </Grid>
-    </Grid>
+    </FixedFullScreenLayout>
   );
 }
 

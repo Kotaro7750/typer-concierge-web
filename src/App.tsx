@@ -1,13 +1,13 @@
 import _, { useState, createContext } from 'react';
-import { GameState, Library, LibraryOperator, GameStateContextType } from './@types/type';
-import { useLibrary } from './useLibrary';
-import { NotificationRegistererMap, useNotification } from './useNotification';
-import { ModeSelectView } from './ModeSelectView';
-import { TransitionToTypingView } from './TransitionToTypingView';
-import { TypingView } from './TypingView';
-import { ResultView } from './ResultView';
-import { GoogleAnalytics } from './GoogleAnalytics';
-import { AppBar, Box, Container, createTheme, CssBaseline, ThemeProvider, Toolbar, Typography } from '@mui/material';
+import { GameState, Library, LibraryOperator, GameStateContextType } from '@/@types/type';
+import { useLibrary } from '@/hook/useLibrary';
+import { NotificationRegistererMap, useNotification } from '@/hook/useNotification';
+import { ModeSelectView } from '@/view/ModeSelect';
+import { TransitionToTypingView } from '@/view/TransitionToTyping';
+import { TypingView } from '@/view/Typing';
+import { ResultView } from '@/view/Result';
+import { GoogleAnalytics } from '@/component/GoogleAnalytics';
+import { Box, createTheme, CssBaseline, ThemeProvider } from '@mui/material';
 import { enqueueSnackbar, SnackbarProvider } from 'notistack';
 
 export const GameStateContext = createContext<GameStateContextType>({} as GameStateContextType);
@@ -21,34 +21,23 @@ export function App() {
 
   const [library, libraryOperator] = useLibrary(registerNotification);
   return (
-    <Box height={'100vh'} width={'100vw'} >
+    <Box  >
       <GoogleAnalytics />
+      <SnackbarProvider anchorOrigin={{ vertical: 'top', horizontal: 'right' }} autoHideDuration={5000} />
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <SnackbarProvider anchorOrigin={{ vertical: 'top', horizontal: 'right' }} autoHideDuration={5000} />
-        <Box height={'calc(100% - 36px)'} width={'100%'}>
-          <GameStateContext.Provider value={{ gameState: gameState, setGameState: setGameState }}>
-            <LibraryContext.Provider value={{ library: library, libraryOperator: libraryOperator }}>
-              <NotificationContext.Provider value={registerNotification}>
-                {
-                  gameState === 'ModeSelect' ? <ModeSelectView />
-                    : gameState === 'TransitionToTyping' ? <TransitionToTypingView />
-                      : gameState == 'Typing' ? <TypingView />
-                        : <ResultView />
-                }
-              </NotificationContext.Provider>
-            </LibraryContext.Provider>
-          </GameStateContext.Provider>
-        </Box>
-        <AppBar position='fixed' color='primary' sx={{ bottom: 0, top: 'auto' }}>
-          <Container>
-            <Toolbar variant='dense' sx={{ minHeight: '36px', height: '36px', justifyContent: 'end' }}>
-              <Typography>
-                Version {__APP_VERSION__}
-              </Typography>
-            </Toolbar>
-          </Container>
-        </ AppBar>
+        <GameStateContext.Provider value={{ gameState: gameState, setGameState: setGameState }}>
+          <LibraryContext.Provider value={{ library: library, libraryOperator: libraryOperator }}>
+            <NotificationContext.Provider value={registerNotification}>
+              {
+                gameState === 'ModeSelect' ? <ModeSelectView />
+                  : gameState === 'TransitionToTyping' ? <TransitionToTypingView />
+                    : gameState == 'Typing' ? <TypingView />
+                      : <ResultView />
+              }
+            </NotificationContext.Provider>
+          </LibraryContext.Provider>
+        </GameStateContext.Provider>
       </ThemeProvider >
     </Box >
   );

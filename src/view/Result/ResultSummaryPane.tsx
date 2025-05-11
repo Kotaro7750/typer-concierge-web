@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TypingResultStatistics } from './@types/type';
+import { TypingResultStatistics } from '@/@types/type';
 import { Box, Card, CardContent, Divider, Grid, Switch, Tooltip, Typography } from '@mui/material';
 import { InfoOutlined } from '@mui/icons-material';
 

@@ -2,13 +2,12 @@ import _, { useState, useEffect, useContext } from 'react';
 
 import { SelectDictionaryPane } from './SelectDictionaryPane';
 
-import { GameStateContext } from './App';
-import { LibraryContext } from './App';
-import { NotificationContext } from './App';
+import { GameStateContext, LibraryContext, NotificationContext } from '@/App';
 import { Box, Button, ButtonGroup, CircularProgress, Grid, IconButton, Input, Slider, Stack, Step, StepLabel, Stepper, Tooltip, Typography } from '@mui/material';
 import { Refresh } from '@mui/icons-material';
-import { DictionaryType } from '../pkg/typer_concierge_web';
-import { trackEvent, trackPageView } from './analyticsUtils';
+import { DictionaryType } from 'pkg/typer_concierge_web';
+import { trackEvent, trackPageView } from '@/util/analyticsUtils';
+import { FixedFullScreenLayout } from '@/layout/FixedFullScreen';
 
 const LAP_LENGTH = 50;
 
@@ -96,7 +95,7 @@ export function ModeSelectView() {
   const DESCRIPTION = 'TyperConciergeはあなたのタイピングの上達をサポートします。';
 
   return (
-    <Box width={'100vw'} height={'100vh'} >
+    <FixedFullScreenLayout>
       <Stack width={'100%'} height={'100%'} justifyContent={'center'} direction={'column'} spacing={12} >
         <Grid container justifyContent={'center'} height={'10%'}>
           <Stack width={'100%'} height={'100%'} >
@@ -181,6 +180,6 @@ export function ModeSelectView() {
           </Grid>
         </Grid>
       </Stack >
-    </Box >
+    </FixedFullScreenLayout>
   );
 }

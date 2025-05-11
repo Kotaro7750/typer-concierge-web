@@ -1,6 +1,6 @@
 import React from 'react';
-import { LibraryOperator } from './@types/type';
-import { DictionaryInfo, DictionaryOrigin } from '../pkg/typer_concierge_web';
+import { LibraryOperator } from '@/@types/type';
+import { DictionaryInfo, DictionaryOrigin } from 'pkg/typer_concierge_web';
 import { Box, Checkbox, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Tooltip, Typography } from '@mui/material';
 import { ErrorOutline, WarningAmberOutlined } from '@mui/icons-material';
 

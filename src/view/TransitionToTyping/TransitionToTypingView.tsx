@@ -1,9 +1,10 @@
 import _, { useEffect, useContext, useRef } from 'react';
 import { StartSignal } from './StartSignal';
-import { useCountdownTimer } from './useCountdownTimer';
-import { GameStateContext } from './App';
+import { useCountdownTimer } from '@/hook/useCountdownTimer';
+import { GameStateContext } from '@/App';
 import { Grid } from '@mui/material';
-import { trackEvent } from './analyticsUtils';
+import { trackEvent } from '@/util/analyticsUtils';
+import { FixedFullScreenLayout } from '@/layout/FixedFullScreen';
 
 export function TransitionToTypingView() {
   const gameStateContext = useContext(GameStateContext);
@@ -44,8 +45,10 @@ export function TransitionToTypingView() {
   });
 
   return (
-    <Grid container width={'100%'} height={'100%'} justifyContent={'center'} alignItems={'center'}>
-      <StartSignal countdownTimer={countdownTimer} />
-    </Grid>
+    <FixedFullScreenLayout>
+      <Grid container width={'100%'} height={'100%'} justifyContent={'center'} alignItems={'center'}>
+        <StartSignal countdownTimer={countdownTimer} />
+      </Grid>
+    </FixedFullScreenLayout>
   );
 }

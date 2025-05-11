@@ -1,7 +1,7 @@
 import _ from 'react';
-import { KeyStrokeDisplayInfo, CharacterStyleInformation, CharacterStyleInformationForCanvas } from './@types/type';
+import { KeyStrokeDisplayInfo, CharacterStyleInformation, CharacterStyleInformationForCanvas } from '@/@types/type';
 
-import { ResponsiveCanvas } from './ResponsiveCanvas';
+import { ResponsiveCanvas } from '@/component/ResponsiveCanvas';
 
 import { constructCanvasLine, constructCharacterStyleInformation, calcLineWindowIndex, roundRect, typingviewColors } from './utility';
 import { Box, useTheme } from '@mui/material';

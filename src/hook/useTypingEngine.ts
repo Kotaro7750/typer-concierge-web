@@ -1,6 +1,6 @@
 import _, { useState } from 'react';
-import { DisplayInfo } from './@types/type';
-import { start_game, stroke_key } from '../pkg/typer_concierge_web';
+import { DisplayInfo } from '@/@types/type';
+import { start_game, stroke_key } from 'pkg/typer_concierge_web';
 
 export function useTypingEngine(onFinished: () => void): [DisplayInfo | null, () => void, (c: string, elapsedTimeMs: number) => void] {
   const [displayInfo, setDisplayInfo] = useState<DisplayInfo | null>(null);

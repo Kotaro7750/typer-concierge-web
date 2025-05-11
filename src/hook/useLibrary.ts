@@ -1,6 +1,6 @@
 import { useEffect, useReducer, useState, useActionState, startTransition } from 'react';
-import { Library, LibraryOperator } from './@types/type';
-import { get_dictionary_catalog, DictionaryType, DictionaryOrigin, DictionaryCatalog, confirm_query, QueryRequestFromUI } from '../pkg/typer_concierge_web';
+import { Library, LibraryOperator } from '@/@types/type';
+import { get_dictionary_catalog, DictionaryType, DictionaryOrigin, DictionaryCatalog, confirm_query, QueryRequestFromUI } from 'pkg/typer_concierge_web';
 import { NotificationRegistererMap } from './useNotification';
 
 export function useLibrary(notificationRegisterer: NotificationRegistererMap): [Library, LibraryOperator] {

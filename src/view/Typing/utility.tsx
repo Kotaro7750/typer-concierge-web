@@ -1,4 +1,4 @@
-import { CharacterStyleInformation, CharacterStyleInformationForCanvas } from "./@types/type";
+import { CharacterStyleInformation, CharacterStyleInformationForCanvas } from "@/@types/type";
 import { Theme } from "@mui/material";
 import Color from "color";
 

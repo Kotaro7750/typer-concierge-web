@@ -1,12 +1,13 @@
 import React, { useEffect, useContext, useState } from 'react';
-import { TypingResultStatistics } from './@types/type';
+import { TypingResultStatistics } from '@/@types/type';
 
-import { GameStateContext } from './App';
-import { NotificationContext } from './App';
+import { GameStateContext } from '@/App';
+import { NotificationContext } from '@/App';
 import { ResultSummaryPane } from './ResultSummaryPane';
-import { get_result } from '../pkg/typer_concierge_web';
+import { get_result } from 'pkg/typer_concierge_web';
 import { Box } from '@mui/material';
-import { trackEvent, trackPageView } from './analyticsUtils';
+import { trackEvent, trackPageView } from '@/util/analyticsUtils';
+import { FixedFullScreenLayout } from '@/layout/FixedFullScreen';
 
 // | undefinedとしているのは初回には結果はないため
 export function ResultView(): React.JSX.Element {
@@ -57,8 +58,10 @@ export function ResultView(): React.JSX.Element {
   });
 
   return (
-    <Box width={'100%'} height={'100%'}>
-      <ResultSummaryPane summary={resultStatistics} />
-    </Box>
+    <FixedFullScreenLayout>
+      <Box width={'100%'} height={'100%'}>
+        <ResultSummaryPane summary={resultStatistics} />
+      </Box>
+    </FixedFullScreenLayout>
   );
 }

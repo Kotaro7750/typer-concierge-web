@@ -1,6 +1,6 @@
 import React from 'react';
-import { ViewDisplayInfo } from './@types/type';
-import { ResponsiveCanvas } from './ResponsiveCanvas';
+import { ViewDisplayInfo } from '@/@types/type';
+import { ResponsiveCanvas } from '@/component/ResponsiveCanvas';
 import { constructCharacterStyleInformation, constructCanvasLine, calcLineWindowIndex, typingviewColors } from './utility';
 import { Box, useTheme } from '@mui/material';
 
