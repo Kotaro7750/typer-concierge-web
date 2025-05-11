@@ -5,40 +5,49 @@ export function ResponsiveCanvas(props: { sensitivity: any[], draw: (ctx: Canvas
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
+  const resizeAndDrawCanvas = () => {
+    const container = containerRef.current;
+    const canvas = canvasRef.current;
+    if (!container || !canvas) return;
+
+    const scale = window.devicePixelRatio || 1;
+    const width = container.clientWidth;
+    const height = container.clientHeight;
+
+    canvas.width = Math.floor(width * scale);
+    canvas.height = Math.floor(height * scale);
+
+    canvas.style.width = `${width}px`;
+    canvas.style.height = `${height}px`;
+
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      props.draw(ctx, canvas.width, canvas.height);
+    }
+  };
+
   useEffect(() => {
-    if (containerRef.current === null || canvasRef.current === null) {
-      return;
+    resizeAndDrawCanvas();
+
+    // Detect size change and kick redraw
+    const observer = new ResizeObserver(resizeAndDrawCanvas);
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
     }
 
-    const scale = window.devicePixelRatio;
-
-    canvasRef.current.width = Math.floor(containerRef.current.clientWidth * scale);
-    canvasRef.current.height = Math.floor(containerRef.current.clientHeight * scale);
-
-    const ctx = canvasRef.current.getContext('2d');
-    if (ctx === null) {
-      return;
-    }
-
-    props.draw(ctx, canvasRef.current.width, canvasRef.current.height);
-  }, [visualViewport?.width, visualViewport?.height]);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
-    if (canvasRef.current === null) {
-      return;
-    }
-
-    const ctx = canvasRef.current.getContext('2d');
-    if (ctx === null) {
-      return;
-    }
-
-    props.draw(ctx, canvasRef.current.width, canvasRef.current.height);
+    resizeAndDrawCanvas();
   }, props.sensitivity);
 
   return (
-    <Box width={'100%'} height={'100%'} ref={containerRef}>
-      <canvas style={{ display: 'block', width: '100%', height: '100%' }} ref={canvasRef} />
+    <Box width="100%" height="100%" ref={containerRef}>
+      <canvas
+        ref={canvasRef}
+        style={{ display: 'block' }}
+      />
     </Box>
   );
 }

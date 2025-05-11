@@ -8,7 +8,7 @@ export function TimerPane(props: { elapsedTimeMilli: number }): React.JSX.Elemen
     <Box height={'100%'} width={'100%'} >
       <Typography variant='h4'>
         <Grid container spacing={1} alignItems='center'>
-          <Grid >
+          <Grid container alignItems={'center'}>
             <TimerOutlined fontSize='inherit' />
           </Grid>
           <Grid >
@@ -17,5 +17,5 @@ export function TimerPane(props: { elapsedTimeMilli: number }): React.JSX.Elemen
         </Grid>
       </Typography>
     </ Box>
-      );
+  );
 }

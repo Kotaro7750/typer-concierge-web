@@ -83,9 +83,9 @@ export function TypingView() {
 
   return (
     <Grid container justifyContent={'center'} width={'100%'} height={'100%'} >
-      <Grid width={'95%'}>
+      <Grid width={'95%'} height={'100%'}>
         <Stack width={'100%'} height={'100%'} spacing={2}>
-          <Grid container justifyContent={'space-between'} alignItems={'center'} height={'5%'}>
+          <Grid container justifyContent={'space-between'} alignItems={'center'} sx={{ flex: 1 }}>
             <Grid size={6}>
               <Grid container alignItems={'center'} width={'100%'} justifyContent={'space-around'} spacing={2}>
                 <Grid size={'grow'} >
@@ -107,11 +107,11 @@ export function TypingView() {
             </Grid>
           </Grid>
 
-          <Grid height={'45%'}>
+          <Grid sx={{ flex: 4.5, }}>
             <ViewPane viewDisplayInfo={viewDisplayInfo} />
           </Grid>
 
-          <Grid height={'45%'}>
+          <Grid sx={{ flex: 4.5, paddingBottom:  2 }}>
             <KeyStrokePane keyStrokeDisplayInfo={keyStrokeDisplayInfo} />
           </Grid>
         </Stack>
