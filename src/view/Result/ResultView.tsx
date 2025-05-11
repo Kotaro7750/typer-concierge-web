@@ -8,7 +8,7 @@ import { get_result } from 'pkg/typer_concierge_web';
 import { Grid, Stack } from '@mui/material';
 import { trackEvent, trackPageView } from '@/util/analyticsUtils';
 import { ScrollableLayout } from '@/layout/Scrollable';
-import { ActionAfterFinishPane } from './GameActionPane';
+import { ActionAfterFinishPane } from './ActionAfterFinish';
 import { ShareResultPane } from './ShareResult';
 
 // | undefinedとしているのは初回には結果はないため
@@ -77,7 +77,7 @@ export function ResultView(): React.JSX.Element {
   return (
     <ScrollableLayout>
       <Grid container width={'100%'} spacing={2} padding={2} >
-        <Grid size={2} >
+        <Grid size={3} >
           <Stack spacing={2}>
             <ActionAfterFinishPane backToModeSelect={backToModeSelect} retry={retry} />
             <ShareResultPane />

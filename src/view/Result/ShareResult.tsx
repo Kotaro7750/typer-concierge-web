@@ -25,10 +25,10 @@ export const ShareResultPane: React.FC = () => {
         </Stack>
         <Box display="flex" gap={4} justifyContent="center">
           <IconButton onClick={shareX} aria-label="Xでシェア" sx={{ boxShadow: 4 }}>
-            <XIcon sx={{ fontSize: 48, color: '#000000' }} />
+            <XIcon sx={{ color: '#000000' }} fontSize='large' />
           </IconButton>
           <IconButton onClick={shareFacebook} aria-label="Facebookでシェア" sx={{ boxShadow: 4 }}>
-            <FacebookIcon sx={{ fontSize: 48, color: '#1877F2' }} />
+            <FacebookIcon sx={{ color: '#1877F2' }} fontSize='large' />
           </IconButton>
         </Box>
       </Stack>

@@ -13,7 +13,7 @@ export const ActionAfterFinishPane: React.FC<{
       <Grid container justifyContent="space-around" alignItems="center">
         <Stack spacing={1} alignItems="center">
           <IconButton size="large" aria-label="最初に戻る" onClick={backToModeSelect} color='default'>
-            <ArrowBackIcon sx={{ fontSize: 48 }} />
+            <ArrowBackIcon fontSize='large' />
           </IconButton>
           <Typography variant="body1">最初に戻る</Typography>
           <Typography variant="caption">ESC</Typography>
@@ -21,7 +21,7 @@ export const ActionAfterFinishPane: React.FC<{
 
         <Stack spacing={1} alignItems="center">
           <IconButton size="large" aria-label="リトライする" onClick={retry} color='primary' >
-            <ReplayIcon sx={{ fontSize: 48 }} />
+            <ReplayIcon fontSize='large' />
           </IconButton>
           <Typography variant="body1">リトライする</Typography>
           <Typography variant="caption">Enter</Typography>
