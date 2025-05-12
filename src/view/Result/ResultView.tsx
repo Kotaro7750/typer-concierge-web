@@ -1,21 +1,21 @@
 import React, { useEffect, useContext, useState } from 'react';
-import { TypingResultStatistics } from '@/@types/type';
 
 import { GameStateContext } from '@/App';
 import { NotificationContext } from '@/App';
 import { ResultSummaryPane } from './ResultSummaryPane';
-import { get_result } from 'pkg/typer_concierge_web';
+import { get_result, TypingResult } from 'pkg/typer_concierge_web';
 import { Grid, Stack } from '@mui/material';
 import { trackEvent, trackPageView } from '@/util/analyticsUtils';
 import { ScrollableLayout } from '@/layout/Scrollable';
 import { ActionAfterFinishPane } from './ActionAfterFinish';
 import { ShareResultPane } from './ShareResult';
+import { SingleKeyStrokeSkillPane } from './SingleKeyStrokeSkillPane';
 
 // | undefinedとしているのは初回には結果はないため
 export function ResultView(): React.JSX.Element {
   const gameStateContext = useContext(GameStateContext);
   const notificationRegisterer = useContext(NotificationContext);
-  const [resultStatistics, setResultStatistics] = useState<TypingResultStatistics>({
+  const [resultStatistics, setResultStatistics] = useState<TypingResult>({
     keyStroke: {
       wholeCount: 0,
       completelyCorrectCount: 0,
@@ -26,7 +26,8 @@ export function ResultView(): React.JSX.Element {
       completelyCorrectCount: 0,
       missedCount: 0,
     },
-    totalTimeMs: 0
+    totalTimeMs: 0,
+    singleKeyStrokeSkills: [],
   });
 
 
@@ -85,6 +86,9 @@ export function ResultView(): React.JSX.Element {
         </Grid>
         <Grid size={3} >
           <ResultSummaryPane summary={resultStatistics} />
+        </Grid>
+        <Grid size={6} >
+          <SingleKeyStrokeSkillPane stat={resultStatistics.singleKeyStrokeSkills} />
         </Grid>
       </Grid>
     </ScrollableLayout>
