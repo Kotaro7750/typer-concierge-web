@@ -1,21 +1,21 @@
-import React, { useContext } from 'react';
+import _ from 'react';
 import { Box, Typography, IconButton, Stack } from '@mui/material';
-import FacebookIcon from '@mui/icons-material/Facebook';
 import XIcon from '@mui/icons-material/X';
 import { TileCard } from './TileCard';
-import { NotificationContext } from '@/App';
+import { TypingResultStatistics } from '@/@types/type';
+import { calculateAccuracy, calculateETypingScore, calculateWPM, calculateWPS } from './utility';
 
 
-export const ShareResultPane: React.FC = () => {
-  const notifier = useContext(NotificationContext);
+export function ShareResultPane(props: { summary: TypingResultStatistics }) {
+  const { summary } = props;
+  const wpm = calculateWPM(summary, true);
+  const wps = calculateWPS(summary, true).toFixed(1);
+  const accuracy = calculateAccuracy(summary, true);
+  const eTypingScore = calculateETypingScore(summary, true);
 
-  const shareX = () => {
-    notifier.get('warning')?.("未実装", "Xでのシェアは未実装です");
-  };
+  const sharedText = `あなたのスコアは${eTypingScore}でした！\n${wpm}キー/分・${wps}キー/秒・正確さ${accuracy}%`;
 
-  const shareFacebook = () => {
-    notifier.get('warning')?.("未実装", "Facebookでのシェアは未実装です");
-  };
+  const xUrl = `https://twitter.com/intent/tweet?text=${sharedText}&url=${import.meta.env.VITE_URL}&hashtags=TyperConcierge,タイピング,タイピングゲーム`;
 
   return (
     <TileCard>
@@ -24,11 +24,8 @@ export const ShareResultPane: React.FC = () => {
           <Typography variant="h6">結果をシェア</Typography>
         </Stack>
         <Box display="flex" gap={4} justifyContent="center">
-          <IconButton onClick={shareX} aria-label="Xでシェア" sx={{ boxShadow: 4 }}>
+          <IconButton href={encodeURI(xUrl)} target='_blank' aria-label="Xでシェア" sx={{ boxShadow: 4 }}>
             <XIcon sx={{ color: '#000000' }} fontSize='large' />
-          </IconButton>
-          <IconButton onClick={shareFacebook} aria-label="Facebookでシェア" sx={{ boxShadow: 4 }}>
-            <FacebookIcon sx={{ color: '#1877F2' }} fontSize='large' />
           </IconButton>
         </Box>
       </Stack>

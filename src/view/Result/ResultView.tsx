@@ -68,7 +68,7 @@ export function ResultView(props: { backToModeSelect: BackToModeSelect, retryGam
         <Grid size={3} >
           <Stack spacing={2}>
             <ActionAfterFinishPane backToModeSelect={props.backToModeSelect} retry={props.retryGame} />
-            <ShareResultPane />
+            <ShareResultPane summary={resultStatistics} />
           </Stack>
         </Grid>
         <Grid size={3} >

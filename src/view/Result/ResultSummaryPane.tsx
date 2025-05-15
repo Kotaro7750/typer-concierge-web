@@ -3,6 +3,7 @@ import { TypingResultStatistics } from '@/@types/type';
 import { Box, CardContent, Divider, Grid, Switch, Tooltip, Typography } from '@mui/material';
 import { InfoOutlined } from '@mui/icons-material';
 import { TileCard } from './TileCard';
+import { calculateAccuracy, calculateETypingScore, calculateWPM } from './utility';
 
 export function ResultSummaryPane(props: { summary: TypingResultStatistics }): React.JSX.Element {
   const [isStrokeCountIdeal, setIsStrokeCountIdeal] = useState<boolean>(false);
@@ -11,14 +12,11 @@ export function ResultSummaryPane(props: { summary: TypingResultStatistics }): R
   const effectiveKeyStroke = isStrokeCountIdeal ? summary.idealKeyStroke : summary.keyStroke;
 
   const strokeCount = effectiveKeyStroke.wholeCount;
-  const accuracy = strokeCount == 0 ? 0 : effectiveKeyStroke.completelyCorrectCount * 1.0 / strokeCount * 100;
+  const accuracy = calculateAccuracy(summary, isStrokeCountIdeal);
 
-  // WPMは切り捨て
-  const wpm = summary.totalTimeMs == 0 ? 0 : Math.floor(strokeCount * 60000 / summary.totalTimeMs);
+  const wpm = calculateWPM(summary, isStrokeCountIdeal);
 
-  // WPM x ( 正確率 )^3 の小数点以下切り捨て
-  // 実際のeタイピングはstrokeCountとしてidealじゃなくて実際の打ったローマ字数を使っている
-  const eTypingScore = Math.floor(wpm * (accuracy / 100) ** 3);
+  const eTypingScore = calculateETypingScore(summary, isStrokeCountIdeal);
 
   const STROKE_COUNT_IDEAL_HELP = (
     <Box>
