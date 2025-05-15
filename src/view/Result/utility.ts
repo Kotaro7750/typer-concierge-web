@@ -1,5 +1,9 @@
 import { TypingResultStatistics } from '@/@types/type';
 
+export function keyStrokeForDisplay(key: string): string {
+  return key == ' ' ? '⬚' : key
+}
+
 export function calculateAccuracy(summary: TypingResultStatistics, isStrokeCountIdeal: boolean): number {
   const effectiveKeyStroke = isStrokeCountIdeal ? summary.idealKeyStroke : summary.keyStroke;
 

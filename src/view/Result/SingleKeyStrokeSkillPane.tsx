@@ -29,6 +29,7 @@ import {
 } from '@mui/material';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import ThumbDownIcon from '@mui/icons-material/ThumbDown';
+import { keyStrokeForDisplay } from './utility';
 
 interface SingleKeyStrokeSkillPaneProps {
   stat: SingleKeyStrokeSkill[];
@@ -133,7 +134,8 @@ export function SingleKeyStrokeSkillPane({ stat }: SingleKeyStrokeSkillPaneProps
   );
 
   const RankingItem = ({ idx, skill }: { idx: number; skill: SingleKeyStrokeSkill }) => {
-    const displayKey = skill.keyStroke === ' ' ? '⬚' : skill.keyStroke;
+    const displayKey = keyStrokeForDisplay(skill.keyStroke);
+
     return (
       <ListItem key={`item-${idx}`}>
         <Tooltip title={getTooltipContent(skill)} placement="auto">
@@ -305,7 +307,7 @@ export function SingleKeyStrokeSkillPane({ stat }: SingleKeyStrokeSkillPaneProps
                 <TableBody>
                   {modalSorted.map((skill, idx) => (
                     <TableRow key={`table-${idx}`}>
-                      <TableCell>{skill.keyStroke === ' ' ? '⬚' : skill.keyStroke}</TableCell>
+                      <TableCell>{keyStrokeForDisplay(skill.keyStroke)}</TableCell>
                       <TableCell align="right">{skill.count}</TableCell>
                       <TableCell align="right">{(skill.accuracy * 100).toFixed(2)}%</TableCell>
                       <TableCell align="right">{Math.floor(skill.averageTimeMs)} ms</TableCell>
