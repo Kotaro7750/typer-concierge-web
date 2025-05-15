@@ -28,6 +28,9 @@ jobs:
 
       - name: Build the app
         run: npm run build
+        env:
+          # URL for preview is not deterministic
+          VITE_URL: ${{ secrets.VITE_URL }}
 
       - name: Deploy
         uses: cloudflare/wrangler-action@v3
