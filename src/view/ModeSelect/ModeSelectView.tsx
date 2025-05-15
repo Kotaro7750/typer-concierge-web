@@ -1,13 +1,12 @@
-import _, { useState, useEffect, useContext } from 'react';
-
+import _, { useEffect } from 'react';
 import { SelectDictionaryPane } from './SelectDictionaryPane';
-
-import { GameStateContext, LibraryContext, NotificationContext } from '@/App';
 import { Box, Button, ButtonGroup, CircularProgress, Grid, IconButton, Input, Slider, Stack, Step, StepLabel, Stepper, Tooltip, Typography } from '@mui/material';
 import { Refresh } from '@mui/icons-material';
 import { DictionaryType } from 'pkg/typer_concierge_web';
-import { trackEvent, trackPageView } from '@/util/analyticsUtils';
+import { trackPageView } from '@/util/analyticsUtils';
 import { FixedFullScreenLayout } from '@/layout/FixedFullScreen';
+import { KeyStrokeCountThreshold, KeyStrokeCountThresholdSetter, PrepareStartGame } from '@/hook/useGameControl';
+import { Library, LibraryOperator } from "@/@types/type";
 
 const LAP_LENGTH = 50;
 
@@ -35,14 +34,12 @@ function ModeSelectInstruction(props: { selectedDictionaryType: DictionaryType, 
   );
 }
 
-export function ModeSelectView() {
-  const gameStateContext = useContext(GameStateContext);
-  const notificationRegisterer = useContext(NotificationContext);
-
+export function ModeSelectView(props: { library: Library, libraryOperator: LibraryOperator, keyStrokeCountThreshold: KeyStrokeCountThreshold, setKeyStrokeCountThreshold: KeyStrokeCountThresholdSetter, prepareStartGame: PrepareStartGame }) {
   // NOTE: 分割代入を使っていこう cf. <https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment>
-  const { library: { usedDictionaryType, usedDictionaries: usedDictionaries, catalog: availableDictionaries, isAvailableDictionariesLoading }, libraryOperator } = useContext(LibraryContext);
+  const { library: { usedDictionaryType, usedDictionaries, catalog: availableDictionaries, isAvailableDictionariesLoading }, libraryOperator } = props;
 
-  const [keyStrokeCountThreshold, setKeyStrokeCountThreshold] = useState(150);
+  const keyStrokeCountThreshold = props.keyStrokeCountThreshold;
+  const setKeyStrokeCountThreshold = props.setKeyStrokeCountThreshold;
 
   const canStart = () => {
     return usedDictionaries.length !== 0;
@@ -53,19 +50,7 @@ export function ModeSelectView() {
       return;
     }
 
-
-    try {
-      libraryOperator.confirmQuery(keyStrokeCountThreshold);
-    } catch (e) {
-      notificationRegisterer.get('error')?.('問題文作成エラー', e instanceof Error ? e.message : String(e));
-      return;
-    }
-    gameStateContext.setGameState('TransitionToTyping');
-    trackEvent('start_game', {
-      used_dictionary_type: usedDictionaryType,
-      used_dictionaries: usedDictionaries,
-      key_stroke_count_threshold: keyStrokeCountThreshold,
-    });
+    props.prepareStartGame();
   }
 
   const handleKeyDown = (e: KeyboardEvent) => {

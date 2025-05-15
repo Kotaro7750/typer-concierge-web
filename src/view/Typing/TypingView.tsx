@@ -1,25 +1,22 @@
-import _, { useEffect, useContext, useRef } from 'react';
+import _, { useEffect, useRef } from 'react';
 import { TimerPane } from './TimerPane';
 import { ViewPane } from './ViewPane';
 import { KeyStrokePane } from './KeyStrokePane';
-
-import { GameStateContext } from '@/App';
-import { NotificationContext } from '@/App';
-
 import { useMilliSecondTimer } from '@/hook/useMilliSecondTimer';
-import { useTypingEngine } from '@/hook/useTypingEngine';
 import { Grid, LinearProgress, Stack, styled, Typography } from '@mui/material';
 import { linearProgressClasses } from '@mui/material/LinearProgress';
-import { trackEvent, trackPageView } from '@/util/analyticsUtils';
+import { trackPageView } from '@/util/analyticsUtils';
 import { FixedFullScreenLayout } from '@/layout/FixedFullScreen';
+import { CancelGame, MayFinishPromise, OnInput } from '@/hook/useGameControl';
+import { DisplayInfo } from '@/@types/type';
 
-export function TypingView() {
+export function TypingView(props: { displayInfo: DisplayInfo, onInput: OnInput, cancelGame: CancelGame, mayFinishPromise: MayFinishPromise }) {
   const [elapsedTime, startTimer, stopTimer, cancelTimer] = useMilliSecondTimer();
-  const [displayInfo, startGame, handleInput] = useTypingEngine(() => { stopTimer(); gameStateContext.setGameState('Finished'); });
   const isStarted = useRef(false);
 
-  const gameStateContext = useContext(GameStateContext);
-  const notificationRegisterer = useContext(NotificationContext);
+  props.mayFinishPromise.then(() => {
+    stopTimer();
+  });
 
   useEffect(() => {
     trackPageView('/typing', 'TypingView');
@@ -27,9 +24,9 @@ export function TypingView() {
 
   const cancelTyping = () => {
     // これもuseEffect内でやる必要があるかもしれない
-    gameStateContext.setGameState('ModeSelect');
+    props.cancelGame();
     cancelTimer();
-    trackEvent('cancel_game', {});
+
   }
 
   const handleKeyDown = (e: KeyboardEvent) => {
@@ -43,24 +40,13 @@ export function TypingView() {
     // ShiftとかAltとかの特殊文字を防ぐために長さでバリデーションをかける
     // 本当はもっといいやり方があるはず
     if (key.length == 1 && ' '.charCodeAt(0) <= key.charCodeAt(0) && key.charCodeAt(0) <= '~'.charCodeAt(0)) {
-      try {
-        handleInput(key, elapsedTime);
-      } catch (e) {
-        notificationRegisterer.get('error')?.('キー入力処理エラー', e instanceof Error ? e.message : String(e));
-        gameStateContext.setGameState('ModeSelect');
-      }
+      props.onInput(key, elapsedTime);
     }
   }
 
   // 初回レンダリング終了時にタイマーをスタートさせる
   useEffect(() => {
     if (isStarted.current === false) {
-      try {
-        startGame();
-      } catch (e) {
-        notificationRegisterer.get('error')?.('ゲーム開始エラー', e instanceof Error ? e.message : String(e));
-        gameStateContext.setGameState('ModeSelect');
-      }
       startTimer();
 
       isStarted.current = true;
@@ -73,12 +59,12 @@ export function TypingView() {
     return () => { removeEventListener('keydown', handleKeyDown) }
   });
 
-  if (displayInfo === null) {
+  if (props.displayInfo === null) {
     return (<></>);
   }
 
-  const viewDisplayInfo = displayInfo.view;
-  const keyStrokeDisplayInfo = displayInfo.keyStroke;
+  const viewDisplayInfo = props.displayInfo.view;
+  const keyStrokeDisplayInfo = props.displayInfo.keyStroke;
 
   const progressPercentage = keyStrokeDisplayInfo.progress * 100;
 

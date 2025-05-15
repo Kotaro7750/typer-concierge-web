@@ -1,13 +1,11 @@
-import _, { useEffect, useContext, useRef } from 'react';
+import _, { useEffect, useRef } from 'react';
 import { StartSignal } from './StartSignal';
 import { useCountdownTimer } from '@/hook/useCountdownTimer';
-import { GameStateContext } from '@/App';
 import { Grid } from '@mui/material';
-import { trackEvent } from '@/util/analyticsUtils';
 import { FixedFullScreenLayout } from '@/layout/FixedFullScreen';
+import { CancelGame, StartGame } from '@/hook/useGameControl';
 
-export function TransitionToTypingView() {
-  const gameStateContext = useContext(GameStateContext);
+export function TransitionToTypingView(props: { startGame: StartGame, cancelGame: CancelGame }) {
   // カウントダウン終了のコールバックで直接タイピング画面に遷移させると警告が出るのでレンダリング後に呼ばせる
   // cf. <https://reactjs.org/blog/2020/02/26/react-v16.13.0.html#warnings-for-some-updates-during-render>
   const isStartTyping = useRef(false);
@@ -22,8 +20,7 @@ export function TransitionToTypingView() {
     const key = e.key;
 
     if (key === 'Escape') {
-      gameStateContext.setGameState('ModeSelect');
-      trackEvent('cancel_game');
+      props.cancelGame();
     }
   }
 
@@ -40,9 +37,9 @@ export function TransitionToTypingView() {
 
   useEffect(() => {
     if (isStartTyping.current) {
-      gameStateContext.setGameState('Typing');
+      props.startGame();
     }
-  });
+  }, [isStartTyping.current]);
 
   return (
     <FixedFullScreenLayout>
