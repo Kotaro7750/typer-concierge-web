@@ -10,6 +10,7 @@ import { ShareResultPane } from './ShareResult';
 import { SingleKeyStrokeSkillPane } from './SingleKeyStrokeSkillPane';
 import { BackToModeSelect, PrepareStartGame } from '@/hook/useGameControl';
 import { SingleKeyStrokePlot as SingleKeyStrokeScatterPane } from './SingleKeyStrokeScatterPane';
+import { StatisticsDataControlPane } from './StatisticsDataControlPane';
 import { calculateAccuracy, calculateWPS } from './utility';
 
 // | undefinedとしているのは初回には結果はないため
@@ -97,7 +98,11 @@ export function ResultView(props: { backToModeSelect: BackToModeSelect, retryGam
         <Grid size={3} >
           <ResultSummaryPane summary={resultStatistics.thisResult} />
         </Grid>
-        <Grid size={6} >
+        <Grid size={6} ></Grid>
+        <Grid size={1} >
+          <StatisticsDataControlPane />
+        </Grid>
+        <Grid size={5} >
           <SingleKeyStrokeSkillPane stat={resultStatistics.aggregatedResult.singleKeyStrokeSkills} />
         </Grid>
         <Grid size={6} >
