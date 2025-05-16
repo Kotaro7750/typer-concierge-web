@@ -16,7 +16,8 @@ import { calculateAccuracy, calculateWPS } from './utility';
 // | undefinedとしているのは初回には結果はないため
 export function ResultView(props: { backToModeSelect: BackToModeSelect, retryGame: PrepareStartGame }): React.JSX.Element {
   const notificationRegisterer = useContext(NotificationContext);
-  const [resultStatistics, setResultStatistics] = useState<GameResult>({
+
+  const initialResultStatistics: GameResult = {
     thisResult: {
       keyStroke: {
         wholeCount: 0,
@@ -45,7 +46,8 @@ export function ResultView(props: { backToModeSelect: BackToModeSelect, retryGam
       totalTimeMs: 0,
       singleKeyStrokeSkills: [],
     }
-  });
+  };
+  const [resultStatistics, setResultStatistics] = useState<GameResult>(initialResultStatistics);
 
   const handleKeyDown = (e: KeyboardEvent) => {
     const key = e.key;
@@ -104,7 +106,15 @@ export function ResultView(props: { backToModeSelect: BackToModeSelect, retryGam
           </Tooltip>
         </Grid>
         <Grid size={1} >
-          <StatisticsDataControlPane />
+          <StatisticsDataControlPane onResetStatistics={
+            () => setResultStatistics((prev) => {
+              // Reset only aggregated result
+              const next = initialResultStatistics;
+              next.thisResult = prev.thisResult;
+
+              return next;
+            })
+          } />
         </Grid>
         <Grid size={5} >
           <SingleKeyStrokeSkillPane stat={resultStatistics.aggregatedResult.singleKeyStrokeSkills} />

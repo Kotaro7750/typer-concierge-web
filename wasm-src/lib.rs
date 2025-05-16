@@ -255,3 +255,11 @@ pub fn get_result() -> Result<GameResult, WasmError> {
 
     Ok(GameResult::new(this_result, aggregated_result))
 }
+
+#[wasm_bindgen]
+pub fn reset_statistics() -> Result<(), WasmError> {
+    let mut aggregated_result = AGGREGATED_RESULT.blocking_lock();
+    aggregated_result.take();
+
+    Ok(())
+}

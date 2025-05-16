@@ -4,12 +4,19 @@ import { TileCard } from './TileCard';
 import { Analytics, Delete } from '@mui/icons-material';
 import Color from 'color';
 import { NotificationContext } from '@/App';
+import { reset_statistics } from 'pkg/typer_concierge_web';
 
-export function StatisticsDataControlPane() {
+export function StatisticsDataControlPane(props: { onResetStatistics: () => void }) {
   const notificationRegisterer = useContext(NotificationContext);
 
   const resetStatistics = () => {
-    notificationRegisterer.get('warning')?.("未実装エラー", "統計データのリセットは未実装です");
+    try {
+      reset_statistics();
+      props.onResetStatistics();
+      notificationRegisterer.get('success')?.("成功", "正常に統計データをリセットできました");
+    } catch (e) {
+      notificationRegisterer.get('error')?.("エラー", "統計データのリセットに失敗しました");
+    }
   }
 
   const manageResult = () => {
