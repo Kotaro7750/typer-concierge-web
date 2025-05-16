@@ -2,7 +2,7 @@ import React, { useEffect, useContext, useState } from 'react';
 import { NotificationContext } from '@/App';
 import { ResultSummaryPane } from './ResultSummaryPane';
 import { GameResult, get_result } from 'pkg/typer_concierge_web';
-import { Grid, Stack } from '@mui/material';
+import { Grid, Skeleton, Stack, Tooltip } from '@mui/material';
 import { trackPageView } from '@/util/analyticsUtils';
 import { ScrollableLayout } from '@/layout/Scrollable';
 import { ActionAfterFinishPane } from './ActionAfterFinish';
@@ -98,7 +98,11 @@ export function ResultView(props: { backToModeSelect: BackToModeSelect, retryGam
         <Grid size={3} >
           <ResultSummaryPane summary={resultStatistics.thisResult} />
         </Grid>
-        <Grid size={6} ></Grid>
+        <Grid size={6} >
+          <Tooltip title='工事中...'>
+            <Skeleton variant='rectangular' width={'100%'} height={'100%'} />
+          </Tooltip>
+        </Grid>
         <Grid size={1} >
           <StatisticsDataControlPane />
         </Grid>
