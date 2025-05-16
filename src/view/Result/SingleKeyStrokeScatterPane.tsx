@@ -77,7 +77,7 @@ export function SingleKeyStrokePlot(props: { averageWPS: number, averageAccuracy
         callbacks: {
           label: function(ctx: any) {
             const point = ctx.raw;
-            return `キー:${keyStrokeForDisplay(point.key)} 正確さ:${point.x.toFixed(0)}% 平均タイプ時間:${point.y}ms`;
+            return `キー:${keyStrokeForDisplay(point.key)} 正確さ:${point.x.toFixed(1)}% 平均タイプ時間:${point.y.toFixed(0)}ms`;
           }
         }
       },
@@ -91,7 +91,7 @@ export function SingleKeyStrokePlot(props: { averageWPS: number, averageAccuracy
             borderWidth: 1,
             borderDash: [10, 5],
             label: {
-              content: `平均 ${props.averageAccuracyPercent}%`,
+              content: `平均 ${props.averageAccuracyPercent.toFixed(1)}%`,
               display: false,
             },
             enter({ element }, _) {
@@ -117,7 +117,7 @@ export function SingleKeyStrokePlot(props: { averageWPS: number, averageAccuracy
             borderWidth: 1,
             borderDash: [10, 5],
             label: {
-              content: `平均 ${averageStrokeTimeMs}ms`,
+              content: `平均 ${averageStrokeTimeMs.toFixed(0)}ms`,
               display: false,
             },
             enter({ element }, _) {

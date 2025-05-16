@@ -1,7 +1,7 @@
 import React, { useEffect, useContext, useState } from 'react';
 import { NotificationContext } from '@/App';
 import { ResultSummaryPane } from './ResultSummaryPane';
-import { get_result, TypingResult } from 'pkg/typer_concierge_web';
+import { GameResult, get_result } from 'pkg/typer_concierge_web';
 import { Grid, Stack } from '@mui/material';
 import { trackPageView } from '@/util/analyticsUtils';
 import { ScrollableLayout } from '@/layout/Scrollable';
@@ -15,19 +15,35 @@ import { calculateAccuracy, calculateWPS } from './utility';
 // | undefinedとしているのは初回には結果はないため
 export function ResultView(props: { backToModeSelect: BackToModeSelect, retryGame: PrepareStartGame }): React.JSX.Element {
   const notificationRegisterer = useContext(NotificationContext);
-  const [resultStatistics, setResultStatistics] = useState<TypingResult>({
-    keyStroke: {
-      wholeCount: 0,
-      completelyCorrectCount: 0,
-      missedCount: 0,
+  const [resultStatistics, setResultStatistics] = useState<GameResult>({
+    thisResult: {
+      keyStroke: {
+        wholeCount: 0,
+        completelyCorrectCount: 0,
+        missedCount: 0,
+      },
+      idealKeyStroke: {
+        wholeCount: 0,
+        completelyCorrectCount: 0,
+        missedCount: 0,
+      },
+      totalTimeMs: 0,
+      singleKeyStrokeSkills: [],
     },
-    idealKeyStroke: {
-      wholeCount: 0,
-      completelyCorrectCount: 0,
-      missedCount: 0,
-    },
-    totalTimeMs: 0,
-    singleKeyStrokeSkills: [],
+    aggregatedResult: {
+      keyStroke: {
+        wholeCount: 0,
+        completelyCorrectCount: 0,
+        missedCount: 0,
+      },
+      idealKeyStroke: {
+        wholeCount: 0,
+        completelyCorrectCount: 0,
+        missedCount: 0,
+      },
+      totalTimeMs: 0,
+      singleKeyStrokeSkills: [],
+    }
   });
 
   const handleKeyDown = (e: KeyboardEvent) => {
@@ -51,6 +67,11 @@ export function ResultView(props: { backToModeSelect: BackToModeSelect, retryGam
   useEffect(() => {
     try {
       const result = get_result();
+
+      const typingResult = result.thisResult;
+      /// Use aggregated result for skill statistics
+      typingResult.singleKeyStrokeSkills = result.aggregatedResult.singleKeyStrokeSkills;
+
       setResultStatistics(result);
     } catch (e) {
       notificationRegisterer.get('error')?.('結果生成エラー', e instanceof Error ? e.message : String(e));
@@ -70,21 +91,23 @@ export function ResultView(props: { backToModeSelect: BackToModeSelect, retryGam
         <Grid size={3} >
           <Stack spacing={2} justifyContent={'space-between'} height={'100%'} >
             <ActionAfterFinishPane backToModeSelect={props.backToModeSelect} retry={props.retryGame} />
-            <ShareResultPane summary={resultStatistics} />
+            <ShareResultPane summary={resultStatistics.thisResult} />
           </Stack>
         </Grid>
         <Grid size={3} >
-          <ResultSummaryPane summary={resultStatistics} />
+          <ResultSummaryPane summary={resultStatistics.thisResult} />
         </Grid>
         <Grid size={6} >
-          <SingleKeyStrokeSkillPane stat={resultStatistics.singleKeyStrokeSkills} />
+          <SingleKeyStrokeSkillPane stat={resultStatistics.aggregatedResult.singleKeyStrokeSkills} />
         </Grid>
         <Grid size={6} >
-          <SingleKeyStrokeScatterPane averageAccuracyPercent={calculateAccuracy(resultStatistics, true)} averageWPS={calculateWPS(resultStatistics, true)} stat={resultStatistics.singleKeyStrokeSkills} />
+          <SingleKeyStrokeScatterPane
+            averageAccuracyPercent={calculateAccuracy(resultStatistics.aggregatedResult, true)}
+            averageWPS={calculateWPS(resultStatistics.aggregatedResult, true)}
+            stat={resultStatistics.aggregatedResult.singleKeyStrokeSkills}
+          />
         </Grid>
       </Grid>
     </ScrollableLayout>
   );
 }
-
-

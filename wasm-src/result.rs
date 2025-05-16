@@ -8,6 +8,28 @@ use typing_engine::TypingResult as LibraryTypingResult;
 #[derive(Debug, Clone, Serialize, Tsify)]
 #[serde(rename_all = "camelCase")]
 #[tsify(into_wasm_abi)]
+/// A struct representing the result of typing.
+/// This contains the result of the current game and the aggregated result.
+pub struct GameResult {
+    this_result: TypingResult,
+    aggregated_result: TypingResult,
+}
+
+impl GameResult {
+    pub(crate) fn new(
+        this_result: LibraryTypingResult,
+        aggregated_result: LibraryTypingResult,
+    ) -> Self {
+        Self {
+            this_result: this_result.into(),
+            aggregated_result: aggregated_result.into(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Tsify)]
+#[serde(rename_all = "camelCase")]
+#[tsify(into_wasm_abi)]
 /// A struct representing the result of typing
 pub struct TypingResult {
     total_time_ms: usize,

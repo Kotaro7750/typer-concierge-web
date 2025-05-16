@@ -2,7 +2,7 @@ use display::DisplayInformation;
 use library::dictionary::DictionaryType;
 use library::Library;
 use library::{dictionary::DictionaryCatalog, QueryRequestFromUI};
-use result::TypingResult;
+use result::GameResult;
 use serde::{Deserialize, Serialize};
 use std::num::NonZeroUsize;
 use std::sync::LazyLock;
@@ -10,8 +10,8 @@ use std::time::Duration;
 use tokio::sync::Mutex;
 use tsify::Tsify;
 use typing_engine::{
-    KeyStrokeCharError, LapRequest, QueryRequest, TypingEngine, VocabularyOrder,
-    VocabularyQuantifier, VocabularySeparator,
+    KeyStrokeCharError, LapRequest, QueryRequest, TypingEngine, TypingResult as LibTypingResult,
+    VocabularyOrder, VocabularyQuantifier, VocabularySeparator,
 };
 use wasm_bindgen::prelude::*;
 
@@ -23,6 +23,8 @@ mod utils;
 static LIBRARY: LazyLock<Mutex<Library>> = LazyLock::new(|| Mutex::new(Library::new()));
 static TYPING_ENGINE: LazyLock<Mutex<TypingEngine>> =
     LazyLock::new(|| Mutex::new(TypingEngine::new()));
+static AGGREGATED_RESULT: LazyLock<Mutex<Option<LibTypingResult>>> =
+    LazyLock::new(|| Mutex::new(None));
 
 #[derive(Debug)]
 /// Error kind from WebAssembly
@@ -32,6 +34,7 @@ enum WasmErrorKind {
     JsError(JsValue),
     StrokedKeyInvalid(String),
     TypingEngineError(typing_engine::TypingEngineError),
+    InternalError(String),
 }
 
 impl From<WasmErrorKind> for JsValue {
@@ -44,6 +47,9 @@ impl From<WasmErrorKind> for JsValue {
                 JsValue::from_str(&format!("Invalid key stroke: {}", key))
             }
             WasmErrorKind::TypingEngineError(err) => JsValue::from_str(&format!("{:?}", err)),
+            WasmErrorKind::InternalError(err) => {
+                JsValue::from_str(&format!("Internal error: {}", err))
+            }
         }
     }
 }
@@ -205,18 +211,47 @@ pub fn stroke_key(key_stroke_info: KeyStrokeInfo) -> Result<StrokeKeyResult, Was
         .construct_display_info(LapRequest::IdealKeyStroke(NonZeroUsize::new(50).unwrap()))?
         .into();
 
+    if is_finished {
+        update_aggregated_result(&mut typing_engine)?;
+    }
+
     Ok(StrokeKeyResult {
         is_finished,
         display_information,
     })
 }
 
+fn update_aggregated_result(typing_engine: &mut TypingEngine) -> Result<(), WasmError> {
+    let this_result = typing_engine
+        .construct_result(LapRequest::IdealKeyStroke(NonZeroUsize::new(50).unwrap()))?;
+
+    let mut aggregated_result = AGGREGATED_RESULT.blocking_lock();
+
+    let new_aggregated_result = if let Some(aggregated_result) = aggregated_result.as_mut() {
+        aggregated_result.clone() + this_result
+    } else {
+        this_result
+    };
+
+    aggregated_result.replace(new_aggregated_result);
+
+    Ok(())
+}
+
 #[wasm_bindgen]
-pub fn get_result() -> Result<TypingResult, WasmError> {
+pub fn get_result() -> Result<GameResult, WasmError> {
     let typing_engine = TYPING_ENGINE.blocking_lock();
 
-    Ok(typing_engine
-        .construct_result(LapRequest::IdealKeyStroke(NonZeroUsize::new(50).unwrap()))
-        .unwrap()
-        .into())
+    let this_result = typing_engine
+        .construct_result(LapRequest::IdealKeyStroke(NonZeroUsize::new(50).unwrap()))?;
+
+    let aggregated_result = AGGREGATED_RESULT.blocking_lock().clone();
+    if aggregated_result.is_none() {
+        return Err(WasmError::new(WasmErrorKind::InternalError(
+            "Aggregated result is not initialized".to_string(),
+        )));
+    }
+    let aggregated_result = aggregated_result.unwrap();
+
+    Ok(GameResult::new(this_result, aggregated_result))
 }
